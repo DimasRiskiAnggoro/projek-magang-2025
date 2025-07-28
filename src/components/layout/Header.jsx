@@ -1,15 +1,31 @@
-// src/components/layout/Header.jsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, Sun, Moon, LogOut, User as UserIcon } from "lucide-react";
 import { useTheme } from "@/context/ThemeProvider";
-import { useAuth } from "@/context/AuthProvider"; // <-- Gunakan AuthContext
+import { useAuth } from "@/context/AuthProvider";
 
 export default function Header({ onMenuClick }) {
   const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth(); // <-- Ambil data user dan fungsi logout
+  const { user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   return (
     <header className="themed-header flex items-center justify-between px-6 py-4">
@@ -25,8 +41,7 @@ export default function Header({ onMenuClick }) {
           {theme === 'light' ? <Moon className="text-gray-600" /> : <Sun className="text-yellow-400" />}
         </button>
 
-        {/* Dropdown User */}
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center space-x-2 bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full text-blue-600 dark:text-blue-300 font-semibold"
@@ -36,12 +51,12 @@ export default function Header({ onMenuClick }) {
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-700 rounded-md shadow-lg py-1 z-50">
+            <div className="absolute right-0 mt-2 w-48 bg-red-600 rounded-md shadow-lg py-1 z-50 border border-red-500">
               <button
                 onClick={logout}
-                className="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-600"
+                className="w-full text-left flex items-center px-4 py-2 text-sm text-white hover:bg-red-700"
               >
-                <LogOut size={16} className="mr-2" />
+                <LogOut size={16} className="mr-2 text-white" />
                 Logout
               </button>
             </div>

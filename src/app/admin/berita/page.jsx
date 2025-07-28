@@ -96,14 +96,15 @@ export default function BeritaPage() {
               <thead className="themed-table-head">
                 <tr>
                   <th className="w-[5%] text-left py-3 px-4 font-semibold">Gambar</th>
-                  <th className="w-[15%] text-left py-3 px-4 font-semibold">Judul</th>
-                  <th className="w-[15%] text-left py-3 px-4 font-semibold">Ringkasan</th>
-                  <th className="w-[10%] text-left py-3 px-4 font-semibold">Penulis</th>
-                  <th className="w-[10%] text-left py-3 px-4 font-semibold">Slug</th>
-                  <th className="w-[10%] text-left py-3 px-4 font-semibold">Status</th>
+                  <th className="w-[12%] text-left py-3 px-4 font-semibold">Judul</th>
+                  <th className="w-[12%] text-left py-3 px-4 font-semibold">Ringkasan</th>
+                  <th className="w-[8%] text-left py-3 px-4 font-semibold">Penulis</th>
+                  <th className="w-[8%] text-left py-3 px-4 font-semibold">Kategori</th>
+                  <th className="w-[8%] text-left py-3 px-4 font-semibold">Slug</th>
+                  <th className="w-[8%] text-left py-3 px-4 font-semibold">Status</th>
                   <th className="w-[5%] text-left py-3 px-4 font-semibold">PDF</th>
                   <th className="w-[5%] text-left py-3 px-4 font-semibold">Sumber</th>
-                  <th className="w-[15%] text-left py-3 px-4 font-semibold">Tgl Publikasi</th>
+                  <th className="w-[12%] text-left py-3 px-4 font-semibold">Tgl Publikasi</th>
                   <th className="w-[5%] text-left py-3 px-4 font-semibold">Aksi</th>
                 </tr>
               </thead>
@@ -121,6 +122,15 @@ export default function BeritaPage() {
                     <td className="py-3 px-4 whitespace-normal break-words align-top">{item.title}</td>
                     <td className="py-3 px-4 whitespace-normal break-words text-sm text-gray-600 dark:text-gray-400 align-top">{item.excerpt || '-'}</td>
                     <td className="py-3 px-4 align-top">{item.author || '-'}</td>
+                    <td className="py-3 px-4 align-top">
+                      {item.category ? (
+                        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          {item.category}
+                        </span>
+                      ) : (
+                        '-'
+                      )}
+                    </td>
                     <td className="py-3 px-4 text-sm text-gray-500 dark:text-gray-400 align-top">{item.slug}</td>
                     <td className="py-3 px-4 align-top">
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full ${

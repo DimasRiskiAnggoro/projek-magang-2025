@@ -93,6 +93,8 @@ export default function UsersPage() {
                 <tr>
                   <th className="text-left py-3 px-4 font-semibold">Nama</th>
                   <th className="text-left py-3 px-4 font-semibold">Email</th>
+                  {/* Tambahkan header kolom Peran */}
+                  <th className="text-left py-3 px-4 font-semibold">Peran</th>
                   <th className="text-left py-3 px-4 font-semibold">Tgl Dibuat</th>
                   <th className="text-left py-3 px-4 font-semibold">Aksi</th>
                 </tr>
@@ -102,6 +104,8 @@ export default function UsersPage() {
                   <tr key={user.id} className="border-b dark:border-slate-700">
                     <td className="py-3 px-4">{user.name}</td>
                     <td className="py-3 px-4">{user.email}</td>
+                    {/* Tambahkan data untuk kolom Peran */}
+                    <td className="py-3 px-4 capitalize">{user.role}</td>
                     <td className="py-3 px-4">{new Date(user.created_at).toLocaleDateString('id-ID')}</td>
                     <td className="py-3 px-4 flex space-x-2">
                       <button onClick={() => handleOpenModal(user)} className="text-blue-500 hover:text-blue-700"><Edit size={18} /></button>

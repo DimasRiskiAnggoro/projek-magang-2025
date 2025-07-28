@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 
 export default function UserModal({ user, onClose, onSave }) {
+  // 1. Tambahkan 'role' ke state. Default 'penulis' untuk user baru.
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     password_confirmation: '',
+    role: 'penulis',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,7 +24,10 @@ export default function UserModal({ user, onClose, onSave }) {
         email: user.email || '',
         password: '',
         password_confirmation: '',
+        role: user.role || 'penulis', // 2. Ambil role dari data user saat edit
       });
+    } else {
+       setFormData(prev => ({ ...prev, role: 'penulis' }));
     }
   }, [user]);
 
@@ -37,13 +42,15 @@ export default function UserModal({ user, onClose, onSave }) {
     setError('');
 
     const token = Cookies.get('auth_token');
-    const url = isEditing 
+    const url = isEditing
       ? `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}`
       : `${process.env.NEXT_PUBLIC_API_URL}/api/users`;
-    
+
+    // 3. Pastikan 'role' dikirim ke API
     const submissionData = {
         name: formData.name,
         email: formData.email,
+        role: formData.role,
     };
     if (formData.password) {
         submissionData.password = formData.password;
@@ -69,7 +76,6 @@ export default function UserModal({ user, onClose, onSave }) {
         }
         throw new Error(errorMsg);
       }
-
       onSave();
     } catch (err) {
       setError(err.message);
@@ -94,6 +100,16 @@ export default function UserModal({ user, onClose, onSave }) {
               <label className="block mb-1">Email</label>
               <input type="email" name="email" value={formData.email} onChange={handleChange} className={inputClass} required />
             </div>
+
+            {/* 4. Tambahkan dropdown untuk Role di sini */}
+            <div>
+              <label className="block mb-1">Peran (Role)</label>
+              <select name="role" value={formData.role} onChange={handleChange} className={inputClass}>
+                <option value="penulis">Penulis</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
             <div>
               <label className="block mb-1">Password {isEditing && '(Kosongkan jika tidak diubah)'}</label>
               <input type="password" name="password" value={formData.password} onChange={handleChange} className={inputClass} required={!isEditing} />
@@ -103,18 +119,13 @@ export default function UserModal({ user, onClose, onSave }) {
               <input type="password" name="password_confirmation" value={formData.password_confirmation} onChange={handleChange} className={inputClass} required={!isEditing && !!formData.password} />
             </div>
           </div>
-          
+
           {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
 
           <div className="flex justify-end space-x-4 mt-6">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isLoading}
-            className="px-4 py-2 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-500 transition"
-          >
-            Batal
-          </button>
+            <button type="button" onClick={onClose} disabled={isLoading} className="px-4 py-2 bg-red-500 dark:bg-red-600 text-white rounded hover:bg-red-600 dark:hover:bg-red-500 transition">
+              Batal
+            </button>
             <button type="submit" disabled={isLoading} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-blue-300">
               {isLoading ? 'Menyimpan...' : 'Simpan'}
             </button>

@@ -4,13 +4,12 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-import AuthProvider from "@/context/AuthProvider"; // <-- Impor AuthProvider
+import AuthProvider from "@/context/AuthProvider";
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    // Bungkus semua dengan AuthProvider
     <AuthProvider>
       <div className="themed-background min-h-screen flex">
         <Sidebar isOpen={sidebarOpen} />
