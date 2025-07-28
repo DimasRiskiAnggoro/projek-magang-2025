@@ -13,7 +13,7 @@ function Hero() {
         muted
         playsInline
       >
-        <source src="/video/Pesona Kota Madiun.mp4" type="video/mp4" />
+        <source src="/video/PesonaKotaMadiun.mp4" type="video/mp4" />
         {/* Fallback untuk browser yang tidak support video */}
         <div className="absolute inset-0 w-full h-full bg-[url('/image/image-4.jpeg')] bg-cover bg-no-repeat" />
       </video>

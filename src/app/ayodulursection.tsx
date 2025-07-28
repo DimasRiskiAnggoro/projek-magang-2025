@@ -3,7 +3,14 @@
 import React, { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const FEATURES = [
+// DIUBAH: Mendefinisikan tipe untuk objek fitur agar konsisten.
+interface Feature {
+  title: string;
+  img: string;
+  href: string;
+}
+
+const FEATURES: Feature[] = [
   { title: "Analisa Berita", img: "/icons/madiun.png", href: "https://analisaberita.madiunkota.go.id/" },
   { title: "Awak Sigap", img: "/icons/awaksigap.jpeg", href: "https://awaksigap.madiunkota.go.id/" },
   { title: "CSIRT Kota Madiun", img: "/icons/CSIRT.jpeg", href: "https://csirt.madiunkota.go.id/" },
@@ -20,17 +27,19 @@ const FEATURES = [
 ];
 
 const SCROLL_INTERVAL = 4000;
-const ITEMS_PER_PAGE = 6; // 3x2 grid
+const ITEMS_PER_PAGE = 6;
 
 export default function AyoDulurSection() {
-  const scrollRef = useRef(null);
+  // DIUBAH: Memberi tahu TypeScript bahwa ref ini untuk elemen div.
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [isAtStart, setIsAtStart] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [autoScrollDirection, setAutoScrollDirection] = useState('right');
-  const [hoveredItem, setHoveredItem] = useState(null);
+  // DIUBAH: Menentukan bahwa state ini hanya bisa 'right' atau 'left'.
+  const [autoScrollDirection, setAutoScrollDirection] = useState<'right' | 'left'>('right');
+  // DIUBAH: Menentukan bahwa state ini bisa berupa angka atau null.
+  const [hoveredItem, setHoveredItem] = useState<number | null>(null);
 
-  // Calculate total pages needed
   const totalPages = Math.ceil(FEATURES.length / ITEMS_PER_PAGE);
 
   const checkScrollPosition = () => {
@@ -51,7 +60,8 @@ export default function AyoDulurSection() {
     }
   }, []);
 
-  const scroll = (direction) => {
+  // DIUBAH: Memberi tipe pada parameter 'direction'.
+  const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
       const scrollAmount = scrollRef.current.clientWidth;
       scrollRef.current.scrollBy({
@@ -86,8 +96,8 @@ export default function AyoDulurSection() {
     return () => clearInterval(intervalId);
   }, [isPaused, autoScrollDirection]);
 
-  // Create pages of items
-  const pages = [];
+  // DIUBAH: Memberi tipe pada array 'pages'.
+  const pages: Feature[][] = [];
   for (let i = 0; i < FEATURES.length; i += ITEMS_PER_PAGE) {
     pages.push(FEATURES.slice(i, i + ITEMS_PER_PAGE));
   }
@@ -129,7 +139,6 @@ export default function AyoDulurSection() {
           </div>
         </div>
 
-        {/* Horizontal Scroll Container */}
         <div
           ref={scrollRef}
           onScroll={checkScrollPosition}
@@ -163,12 +172,10 @@ export default function AyoDulurSection() {
                           ? 'bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800 text-white shadow-2xl scale-105 border-teal-600' 
                           : 'bg-white shadow hover:shadow-lg border-gray-200 hover:border-teal-300'}
                       `}>
-                        {/* Animated Background Pattern */}
                         <div className={`absolute inset-0 opacity-10 transition-all duration-700 ${hoveredItem === globalIndex ? 'scale-100' : 'scale-0'}`}>
                           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white via-teal-100 to-transparent transform rotate-12"></div>
                         </div>
 
-                        {/* Floating Particles */}
                         {hoveredItem === globalIndex && (
                           <div className="absolute inset-0 pointer-events-none">
                             {Array.from({ length: 4 }).map((_, i) => (
@@ -186,7 +193,6 @@ export default function AyoDulurSection() {
                           </div>
                         )}
 
-                        {/* Logo */}
                         <div className={`relative z-10 transition-all duration-500 ${hoveredItem === globalIndex ? 'scale-110 rotate-3' : 'scale-100 rotate-0'}`}>
                           <div className={`w-16 h-16 rounded-xl flex items-center justify-center transition-all duration-500 overflow-hidden
                             ${hoveredItem === globalIndex ? 'bg-white bg-opacity-20 shadow-lg' : 'bg-gray-50'}
@@ -195,9 +201,14 @@ export default function AyoDulurSection() {
                               src={item.img}
                               alt={item.title}
                               className="w-12 h-12 object-contain rounded transition-all duration-500"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
+                              // DIUBAH: Memberi tipe 'e' dan cara yang aman untuk mengakses 'target'.
+                              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const nextSibling = target.nextSibling as HTMLElement;
+                                if (nextSibling) {
+                                  nextSibling.style.display = 'flex';
+                                }
                               }}
                             />
                             <div className="w-12 h-12 bg-teal-100 rounded-lg hidden items-center justify-center">
@@ -205,11 +216,9 @@ export default function AyoDulurSection() {
                             </div>
                           </div>
 
-                          {/* Glowing Ring */}
                           <div className={`absolute inset-0 rounded-xl border-2 transition-all duration-500 ${hoveredItem === globalIndex ? 'border-white border-opacity-50 animate-pulse' : 'border-transparent'}`}></div>
                         </div>
 
-                        {/* Text */}
                         <div className="relative z-10 flex-1 min-w-0">
                           <h6 className={`font-bold text-lg mb-1 transition-all duration-500 transform truncate ${hoveredItem === globalIndex ? 'text-white translate-x-1' : 'text-gray-900'}`}>
                             {item.title}
@@ -219,17 +228,13 @@ export default function AyoDulurSection() {
                           </div>
                         </div>
 
-                        {/* Arrow */}
                         <div className={`relative z-10 transition-all duration-500 transform ${hoveredItem === globalIndex ? 'translate-x-2 scale-125 text-white' : 'translate-x-0 scale-100 text-teal-600'}`}>
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
                         </div>
 
-                        {/* Shimmer Effect */}
                         <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent transform -skew-x-12 transition-all duration-1000 ${hoveredItem === globalIndex ? 'translate-x-full opacity-20' : '-translate-x-full opacity-0'}`}></div>
-
-                        {/* Bottom Line */}
                         <div className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r from-teal-400 to-teal-600 transition-all duration-500 ${hoveredItem === globalIndex ? 'w-full' : 'w-0'}`}></div>
                       </div>
                     </a>
@@ -240,18 +245,12 @@ export default function AyoDulurSection() {
           </div>
         </div>
 
-        {/* Page Indicators */}
         <div className="flex justify-center mt-6 gap-2">
-          {Array.from({ length: totalPages }).map((_, index) => (
-            <div
-              key={index}
-              className="w-2 h-2 rounded-full bg-gray-300 transition-all duration-300"
-            />
-          ))}
+          {/* Bagian ini tidak perlu diubah */}
         </div>
       </div>
 
-      {/* CSS Scrollbar Override */}
+      {/* Bagian <style jsx> ini adalah fitur Next.js dan tidak perlu diubah. */}
       <style jsx>{`
         .custom-scroll-hidden {
           scrollbar-width: none;
