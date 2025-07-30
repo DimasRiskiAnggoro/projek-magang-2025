@@ -76,12 +76,10 @@ export default function AuthProvider({ children }) {
     router.push('/login');
   };
 
-  // Sembunyikan 'setUser', ekspos 'login', 'user', 'logout', dan 'loading'
   const value = { user, login, logout, loading }; 
 
   return (
     <AuthContext.Provider value={value}>
-      {/* Jangan render children jika masih loading untuk menghindari kedipan */}
       {!loading && children} 
     </AuthContext.Provider>
   );

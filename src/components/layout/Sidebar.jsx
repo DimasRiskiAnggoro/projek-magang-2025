@@ -1,16 +1,14 @@
 "use client";
 
 import { Home, Newspaper, Users } from "lucide-react";
-// 1. Import hook useAuth dari context Anda
 import { useAuth } from "@/context/AuthProvider";
 
 export default function Sidebar({ isOpen }) {
-  // 2. Panggil hook untuk mendapatkan data user
+
   const { user } = useAuth();
 
-  // 3. Tambahkan "guard clause" untuk mencegah error jika user belum login/loading
   if (!user) {
-    return null; // atau tampilkan loading spinner
+    return null;
   }
 
   return (
@@ -21,7 +19,6 @@ export default function Sidebar({ isOpen }) {
       </div>
       <nav>
         <ul className="space-y-4 text-gray-700 dark:text-gray-300">
-          {/* Tampilkan Dashboard HANYA untuk admin */}
           {user.role === 'admin' && (
             <li>
               <a href="/admin" className="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-black dark:hover:text-white font-medium transition">
@@ -30,7 +27,6 @@ export default function Sidebar({ isOpen }) {
             </li>
           )}
           
-          {/* Tampilkan Berita untuk admin DAN penulis */}
           {(user.role === 'admin' || user.role === 'penulis') && (
             <li>
               <a href="/admin/berita" className="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-black dark:hover:text-white font-medium transition">
@@ -39,7 +35,6 @@ export default function Sidebar({ isOpen }) {
             </li>
           )}
 
-          {/* Tampilkan Manajemen Akun HANYA untuk admin */}
           {user.role === 'admin' && (
             <li>
               <a href="/admin/users" className="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-black dark:hover:text-white font-medium transition">

@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import Image from 'next/image'; // Import Image component
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -13,7 +13,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // Pastikan file 'komingo.png' ada di dalam folder /public
   const wallpaperUrl = '/DINAS KOMUNIKASI DAN INFORMATIKA KOTA MADIUN.png'; 
 
   const handleSubmit = async (e) => {
@@ -44,7 +43,16 @@ export default function LoginPage() {
       
       if (data.token) {
         Cookies.set('auth_token', data.token, { expires: 7, path: '/' });
-        router.push('/admin');
+        
+        // REDIRECT BERDASARKAN ROLE USER
+        if (data.user && data.user.role === 'penulis') {
+          router.push('/admin/berita'); // Penulis langsung ke halaman berita
+        } else if (data.user && data.user.role === 'admin') {
+          router.push('/admin'); // Admin ke dashboard
+        } else {
+          // Fallback jika role tidak dikenali
+          router.push('/admin');
+        }
       } else {
         throw new Error('Token tidak ditemukan pada respons dari server.');
       }

@@ -1,4 +1,3 @@
-// src/components/layout/AdminLayout.jsx
 "use client";
 
 import { useState } from "react";
