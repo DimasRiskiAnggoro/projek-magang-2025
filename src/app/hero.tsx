@@ -38,7 +38,7 @@ function Hero() {
           </div>
 
           <Typography variant="h1" color="white">
-            Selamat Datang di Kominfo Madiun
+            Selamat Datang di Website Kecamatan Taman kota Madiun
           </Typography>
           <Typography
             variant="lead"
@@ -52,7 +52,7 @@ function Hero() {
             color="white"
             className="mt-1 mb-7 font-medium uppercase"
           >
-            Connect with us on:
+            Kunjungi kami di
           </Typography>
           <div className="gap-8 flex">
             <IconButton variant="text" color="white" size="sm">
