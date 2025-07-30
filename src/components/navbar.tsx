@@ -2,281 +2,275 @@ import React from "react";
 import {
   Navbar as MTNavbar,
   Collapse,
-  Button,
   IconButton,
   Typography,
 } from "@material-tailwind/react";
-import { 
-  Bars3Icon, 
-  XMarkIcon, 
-  ChevronDownIcon
+import {
+  Bars3Icon,
+  XMarkIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 
-const DROPDOWN_ITEMS = {
-  "Berita": [
-    { name: "Berita Terkini", href: "#" },
-    { name: "Pengumuman", href: "#" },
-    { name: "Kegiatan", href: "#" },
-    { name: "Press Release", href: "#" }
-  ],
-  "Profile": [
-    { name: "Visi & Misi", href: "#" },
-    { name: "Struktur Organisasi", href: "#" },
-    { name: "Tugas & Fungsi", href: "#" },
-    { name: "Sejarah", href: "#" }
-  ],
-  "Informasi Publik": [
-    { name: "Informasi Berkala", href: "#" },
-    { name: "Informasi Serta Merta", href: "#" },
-    { name: "Informasi Setiap Saat", href: "#" },
-    { name: "Daftar Informasi Publik", href: "#" }
-  ],
-  "Publikasi": [
-    { name: "Laporan Kinerja", href: "#" },
-    { name: "Laporan Keuangan", href: "#" },
-    { name: "E-Book", href: "#" },
-    { name: "Infografis", href: "#" }
-  ]
-};
+// Menu utama + dropdown sesuai permintaan
+const NAV_MENU = [
+  { name: "Home", children: [] },
+  { name: "Berita", children: [] }, // Dropdown dihapus
+  {
+    name: "Pemerintah Kota Madiun",
+    children: [
+      { name: "PPID Kota Madiun", href: "#" },
+      { name: "Kecamatan Taman", href: "#" },
+      { name: "Maguharjo", href: "#" },
+      { name: "Kartoharjo", href: "#" },
+    ],
+  },
+  {
+    name: "Kelurahan",
+    children: [
+      { name: "Kelurahan Taman", href: "#" },
+      { name: "Kelurahan Banjarejo", href: "#" },
+      { name: "Kelurahan Demangan", href: "#" },
+      { name: "Kelurahan Kejuron", href: "#" },
+      { name: "Kelurahan Josenan", href: "#" },
+      { name: "Kelurahan Pandean", href: "#" },
+      { name: "Kelurahan Manisrejo", href: "#" },
+      { name: "Kelurahan Mojorejo", href: "#" },
+      { name: "Kelurahan Kuncen", href: "#" },
+      { name: "Prodeskel PMD", href: "#" },
+    ],
+  },
+  {
+    name: "Tentang",
+    children: [
+      { name: "Profil OPD", href: "#" },
+      { name: "Profil Camat Taman Kota Madiun", href: "#" },
+      { name: "Visi Dan Misi", href: "#" },
+      { name: "STANDAR PELAYANAN KECAMATAN TAMAN TAHUN 2024 (6 Komponen)", href: "#" },
+      { name: "Data Pegawai", href: "#" },
+      { name: "Tupoksi", href: "#" },
+      { name: "SK", href: "#" },
+      { name: "Struktur Organisasi", href: "#" },
+      { name: "Maklumat Pelayanan", href: "#" },
+    ],
+  },
+  { 
+    name: "PPID", 
+    children: [
+      { name: "Kontak, Struktur Organisasi, Visi Misi PPID Kecamatan Taman", href: "#" },
+      { name: "TUGAS DAN FUNGSI PPID PELAKSANA KECAMATAN TAMAN", href: "#" },
+      { name: "Informasi Secara Berkala", href: "#" },
+      { name: "SK PPID", href: "#" },
+      { name: "Informasi Setiap Saat", href: "#" },
+      { name: "Informasi Serta Merta", href: "#" },
+      { name: "Informasi Dikecualikan", href: "#" },
+      { name: "Laporan PPID", href: "#" },
+      { name: "Daftar Informasi Publik Kecamatan Taman", href: "#" },
+    ]
+  },
+  {
+    name: "Layanan Publik",
+    children: [
+      { name: "Jam Pelayanan Kecamatan Taman", href: "#" },
+      { name: "Standar Pelayanan Kecamatan Taman", href: "#" },
+      { name: "Rekapitulasi Umpan Balik Konsultasi Dan Pengaduan Di Kecamatan Taman", href: "#" },
+      { name: "RINGKASAN PERMOHONAN INFORMASI PUBLIK KECAMATAN TAMAN TAHUN 2022", href: "#" },
+      { name: "Permohonan Informasi Publik", href: "#" },
+      { name: "Pengajuan Keberatan Informasi", href: "#" },
+      { name: "INOVASI", href: "#" },
+    ],
+  },
+  {
+    name: "Hubungi Kami",
+    children: [
+      { name: "TATA CARA PERMOHONAN INFORMASI PUBLIK", href: "#" },
+      { name: "TATA CARA PENGAJUAN KEBERATAN DAN PROSES PENYELESAIAN SENGKETA INFORMASI PUBLIK", href: "#" },
+      { name: "Tata Cara Aspirasi Dan Pengaduan Masyarakat", href: "#" },
+      { name: "APLIKASI ONLINE KECAMATAN TAMAN", href: "#" },
+    ],
+  },
+  { name: "FAQ", children: [] },
+  { name: "VISIT TAMAN", children: [] },
+  { name: "JALUR WISATA", children: [] },
+];
 
-const NAV_MENU = ["Beranda", "Berita", "Profile", "Layanan Pengaduan", "FaQ", "Informasi Publik", "Publikasi"];
+// Komponen dropdown menu
+const DropdownMenu = ({ items = [], onClose = () => {} }) => (
+  <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 py-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 ease-out transform translate-y-4 group-hover:translate-y-0 z-50 backdrop-blur-sm">
+    <div className="absolute -top-2 left-4 w-4 h-4 bg-white border-l border-t border-gray-100 transform rotate-45"></div>
+    {items.map((item, index) => (
+      <a
+        key={item.name}
+        href={item.href}
+        onClick={onClose}
+        className="block px-6 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 hover:text-purple-600 transition-all duration-300 transform hover:translate-x-2 animate-fade-in-left"
+        style={{ animationDelay: `${index * 0.05}s` }}
+      >
+        <span className="flex items-center">
+          <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 opacity-0 transition-opacity duration-300 hover:opacity-100"></span>
+          {item.name}
+        </span>
+      </a>
+    ))}
+  </div>
+);
 
-function DropdownMenu({ items, isScrolling, onClose }: { 
-  items: typeof DROPDOWN_ITEMS[keyof typeof DROPDOWN_ITEMS], 
-  isScrolling: boolean,
-  onClose: () => void 
-}) {
+// Komponen item navbar
+const NavItem = ({ item, isMobile = false }) => {
+  const [open, setOpen] = React.useState(false);
+  const hasDropdown = item.children?.length > 0;
+
   return (
-    <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 ease-out transform translate-y-3 group-hover:translate-y-0 z-50 backdrop-blur-sm">
-      <div className="absolute -top-2 left-6 w-4 h-4 bg-white border-l border-t border-gray-100 transform rotate-45"></div>
-      {items.map((item, index) => (
-        <a
-          key={item.name}
-          href={item.href}
-          onClick={onClose}
-          className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-[#90b4f0]/10 hover:to-[#90b4f0]/20 hover:text-[#90b4f0] transition-all duration-300 group/item relative overflow-hidden transform hover:translate-x-1"
-          style={{
-            animationDelay: `${index * 100}ms`
-          }}
-        >
-          <div className="absolute left-0 top-0 h-full w-1 bg-[#90b4f0] transform scale-y-0 group-hover/item:scale-y-100 transition-transform duration-300 origin-top"></div>
-          <span className="font-medium text-sm relative ml-2">
-            {item.name}
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#90b4f0] group-hover/item:w-full transition-all duration-300"></span>
-          </span>
-        </a>
-      ))}
-    </div>
-  );
-}
+    <li className={`relative group ${isMobile ? "w-full" : ""}`}>
+      <div
+        className={`flex items-center justify-between cursor-pointer px-3 py-2 rounded-lg transition-all duration-300 ${
+          isMobile 
+            ? "w-full text-gray-700 hover:bg-gray-50 hover:text-purple-600" 
+            : "text-sm hover:bg-white/10 hover:text-purple-200 transform hover:scale-105"
+        }`}
+        onClick={() => isMobile && setOpen(!open)}
+      >
+        <span className="relative">
+          {item.name}
+          <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-300 transition-all duration-300 group-hover:w-full"></span>
+        </span>
+        {hasDropdown && (
+          <ChevronDownIcon className={`w-4 h-4 ml-1 transition-transform duration-300 ${
+            (isMobile && open) || (!isMobile && "group-hover:rotate-180")
+          }`} />
+        )}
+      </div>
 
-function NavItem({ 
-  children, 
-  hasDropdown = false, 
-  dropdownItems, 
-  isScrolling,
-  isMobile = false 
-}: { 
-  children: React.ReactNode,
-  hasDropdown?: boolean,
-  dropdownItems?: typeof DROPDOWN_ITEMS[keyof typeof DROPDOWN_ITEMS],
-  isScrolling: boolean,
-  isMobile?: boolean
-}) {
-  const [isOpen, setIsOpen] = React.useState(false);
-
-  if (hasDropdown && dropdownItems) {
-    return (
-      <li className={`relative group ${isMobile ? 'w-full' : ''}`}>
-        <div 
-          className={`flex items-center gap-1 cursor-pointer ${
-            isMobile ? 'w-full justify-between py-2' : ''
-          }`}
-          onClick={() => isMobile && setIsOpen(!isOpen)}
-        >
-          <Typography
-            as="span"
-            variant="paragraph"
-            className="flex items-center gap-2 font-medium group-hover:text-[#90b4f0] transition-all duration-300 relative overflow-hidden"
-          >
-            <span className="relative z-10 transition-transform duration-300 group-hover:scale-105">
-              {children}
-            </span>
-            <span className="absolute inset-0 bg-gradient-to-r from-[#90b4f0]/0 to-[#90b4f0]/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-md"></span>
-          </Typography>
-          <ChevronDownIcon 
-            className={`w-4 h-4 transition-all duration-300 group-hover:text-[#90b4f0] ${
-              isMobile && isOpen ? 'rotate-180 text-[#90b4f0]' : 'group-hover:rotate-180'
-            }`} 
-          />
-        </div>
-        
-        {isMobile ? (
-          <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-            isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-          }`}>
-            <div className="pl-4 pt-2 space-y-1">
-              {dropdownItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="flex items-center gap-3 py-2 px-3 text-gray-600 hover:text-[#90b4f0] hover:bg-[#90b4f0]/10 rounded-lg transition-all duration-300 transform hover:translate-x-2 hover:scale-105 relative overflow-hidden group/mobile"
+      {hasDropdown && (
+        isMobile ? (
+          <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <ul className="pl-4 py-2">
+              {item.children.map((child, index) => (
+                <li 
+                  key={child.name}
+                  className="animate-slide-in"
+                  style={{ animationDelay: `${index * 0.05}s` }}
                 >
-                  <div className="absolute left-0 top-0 h-full w-1 bg-[#90b4f0] transform scale-y-0 group-hover/mobile:scale-y-100 transition-transform duration-300 origin-center rounded-r-full"></div>
-                  <span className="text-sm font-medium ml-2">{item.name}</span>
-                </a>
+                  <a
+                    href={child.href}
+                    className="block px-2 py-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded transition-all duration-200"
+                  >
+                    {child.name}
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         ) : (
-          <DropdownMenu 
-            items={dropdownItems} 
-            isScrolling={isScrolling}
-            onClose={() => {}}
-          />
-        )}
-      </li>
-    );
-  }
-
-  return (
-    <li>
-      <Typography
-        as="a"
-        href="#"
-        variant="paragraph"
-        className="flex items-center gap-2 font-medium hover:text-[#90b4f0] transition-all duration-300 relative group/simple overflow-hidden px-2 py-1 rounded-md"
-      >
-        <span className="relative z-10 transition-transform duration-300 group-hover/simple:scale-105">
-          {children}
-        </span>
-        <span className="absolute inset-0 bg-gradient-to-r from-[#90b4f0]/0 to-[#90b4f0]/10 transform scale-x-0 group-hover/simple:scale-x-100 transition-transform duration-300 origin-left rounded-md"></span>
-        <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-[#90b4f0] group-hover/simple:w-3/4 transition-all duration-300"></span>
-      </Typography>
+          <DropdownMenu items={item.children} />
+        )
+      )}
     </li>
   );
-}
+};
 
+// Komponen utama Navbar
 export function Navbar() {
   const [open, setOpen] = React.useState(false);
   const [isScrolling, setIsScrolling] = React.useState(false);
-  
-  function handleOpen() {
-    setOpen((cur) => !cur);
-  }
 
   React.useEffect(() => {
-    window.addEventListener(
-      "resize",
-      () => window.innerWidth >= 960 && setOpen(false)
-    );
+    const onScroll = () => setIsScrolling(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   React.useEffect(() => {
-    function handleScroll() {
-      if (window.scrollY > 0) {
-        setIsScrolling(true);
-      } else {
-        setIsScrolling(false);
-      }
-    }
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onResize = () => window.innerWidth >= 960 && setOpen(false);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
-
-  const hasDropdown = (menuName: string) => {
-    return menuName in DROPDOWN_ITEMS;
-  };
 
   return (
     <MTNavbar
       fullWidth
-      shadow={false}
       blurred={false}
+      shadow={false}
       color={isScrolling ? "white" : "transparent"}
-      className="fixed top-0 z-50 border-0 transition-all duration-300"
+      className={`fixed top-0 z-50 border-0 transition-all duration-500 h-20 ${
+        isScrolling ? "shadow-xl backdrop-blur-md" : ""
+      }`}
+      style={{
+        background: isScrolling 
+          ? 'rgba(255, 255, 255, 0.95)' 
+          : 'linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%)'
+      }}
     >
-      <div className="container mx-auto flex items-center justify-between">
-        <Typography
-          as="a"
-          href="#"
-          className={`text-lg font-bold transition-all duration-300 hover:scale-105 cursor-pointer ${
-            isScrolling 
-              ? "text-gray-900 hover:text-[#90b4f0]" 
-              : "text-white hover:text-[#90b4f0] hover:drop-shadow-lg"
-          }`}
-        >
-          Diskominfo Kota Madiun
-        </Typography>
-        
-        <ul
-          className={`ml-10 hidden items-center gap-8 lg:flex ${
-            isScrolling ? "text-gray-900" : "text-white"
-          }`}
-        >
-          {NAV_MENU.map((name) => (
-            <NavItem 
-              key={name}
-              hasDropdown={hasDropdown(name)}
-              dropdownItems={DROPDOWN_ITEMS[name as keyof typeof DROPDOWN_ITEMS]}
-              isScrolling={isScrolling}
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-full">
+        {/* Logo - Hidden to save space */}
+        <div className="flex-shrink-0">
+          {/* Logo removed for cleaner layout */}
+        </div>
+
+        {/* Desktop Menu - Centered */}
+        <ul className={`hidden lg:flex items-center gap-6 transition-all duration-500 ${
+          isScrolling ? "text-gray-900" : "text-white"
+        }`}>
+          {NAV_MENU.map((item, index) => (
+            <div 
+              key={item.name} 
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              {name}
-            </NavItem>
+              <NavItem item={item} />
+            </div>
           ))}
         </ul>
-        
-        <div className="hidden items-center gap-2 lg:flex">
+
+        {/* Special Buttons - Taman Terdepan & Contact */}
+        <div className="hidden lg:flex items-center gap-3">
+          <button className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95">
+            Taman Terdepan
+          </button>
+          <button className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2.5 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 hover:rotate-6">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+            </svg>
+          </button>
         </div>
-        
+
+        {/* Toggle Button Mobile */}
         <IconButton
           variant="text"
-          onClick={handleOpen}
+          onClick={() => setOpen((cur) => !cur)}
           color={isScrolling ? "gray" : "white"}
-          className="ml-auto inline-block lg:hidden hover:bg-[#90b4f0]/10 hover:text-[#90b4f0] transition-all duration-300 hover:scale-110 hover:rotate-3"
+          className="lg:hidden"
         >
-          {open ? (
-            <XMarkIcon strokeWidth={2} className="h-6 w-6" />
-          ) : (
-            <Bars3Icon strokeWidth={2} className="h-6 w-6" />
-          )}
+          {open ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
         </IconButton>
       </div>
-      
+
+      {/* Mobile Menu */}
       <Collapse open={open}>
-        <div className="container mx-auto bg-white rounded-lg py-4 px-6 mt-3 border-t border-gray-200 shadow-lg">
-          <ul className="flex flex-col gap-2">
-            {NAV_MENU.map((name) => (
-              <NavItem 
-                key={name}
-                hasDropdown={hasDropdown(name)}
-                dropdownItems={DROPDOWN_ITEMS[name as keyof typeof DROPDOWN_ITEMS]}
-                isScrolling={isScrolling}
-                isMobile={true}
+        <div className="bg-white/95 backdrop-blur-md mx-6 my-4 rounded-xl shadow-2xl lg:hidden border border-gray-100">
+          <ul className="px-6 py-6">
+            {NAV_MENU.map((item, index) => (
+              <div 
+                key={item.name}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
-                {name}
-              </NavItem>
+                <NavItem item={item} isMobile />
+              </div>
             ))}
+            <li className="mt-6 pt-4 border-t border-gray-200">
+              <button className="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg text-sm font-medium mb-3 transition-all duration-300 transform hover:scale-105">
+                Taman Terdepan
+              </button>
+              <button className="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-105">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                </svg>
+                Kontak
+              </button>
+            </li>
           </ul>
-          <div className="mt-6 flex items-center gap-2">
-            <Button 
-              variant="text" 
-              className="hover:bg-[#90b4f0]/10 hover:text-[#90b4f0] transition-all duration-300 hover:scale-105 relative overflow-hidden group/mobile-btn"
-            >
-              <span className="absolute inset-0 bg-gradient-to-r from-[#90b4f0]/10 to-[#90b4f0]/20 transform scale-x-0 group-hover/mobile-btn:scale-x-100 transition-transform duration-300 origin-left rounded-md"></span>
-              <span className="relative z-10">Log in</span>
-            </Button>
-            <a href="https://www.material-tailwind.com/blocks" target="_blank">
-              <Button 
-                color="gray" 
-                className="hover:shadow-lg hover:shadow-[#90b4f0]/20 hover:bg-gradient-to-r hover:from-[#90b4f0] hover:to-[#6fa8dc] hover:text-white transition-all duration-300 hover:scale-105"
-              >
-                blocks
-              </Button>
-            </a>
-          </div>
         </div>
       </Collapse>
     </MTNavbar>
