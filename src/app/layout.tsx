@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { FixedPlugin, Layout } from "@/components";
 import ThemeProvider from "@/context/ThemeProvider"; // ⬅️ Tambahkan ini
+// components
+import { Navbar, Footer } from "@/components";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -38,7 +40,9 @@ export default function RootLayout({
       <body className={roboto.className}>
         <ThemeProvider> {/* ⬅️ Tambahkan ini */}
           <Layout>
+            <Navbar />
             {children}
+            <Footer />
             <FixedPlugin />
           </Layout>
         </ThemeProvider>

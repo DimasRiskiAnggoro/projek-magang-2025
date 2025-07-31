@@ -1,5 +1,3 @@
-// components
-import { Navbar, Footer } from "@/components";
 
 // sections
 import Hero from "./hero";
@@ -10,12 +8,10 @@ import BlogPosts from "./blog-posts";
 export default function Campaign() {
   return (
     <>
-      <Navbar />
       <Hero />
       <Content />
       <Ayodulursection />
       <BlogPosts />
-      <Footer />
     </>
   );
 }
