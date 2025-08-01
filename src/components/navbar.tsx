@@ -1,5 +1,6 @@
 import React from "react";
 import NAV_MENU from "@/types/navMenu"
+import Link from 'next/link';
 
 import {
   Navbar as MTNavbar,
@@ -38,53 +39,52 @@ const DropdownMenu = ({ items = [], onClose = () => {} }) => (
 // Komponen item navbar
 const NavItem = ({ item, isMobile = false }) => {
   const [open, setOpen] = React.useState(false);
-  const hasDropdown = item.children?.length > 0;
+  const hasDropdown = item.children && item.children.length > 0;
+
+  const itemClasses = `flex items-center justify-between cursor-pointer px-3 py-2 rounded-lg transition-all duration-300 ${
+    isMobile
+      ? "w-full text-gray-700 hover:bg-gray-50 hover:text-purple-600"
+      : "text-sm hover:bg-white/10 hover:text-purple-200 transform hover:scale-105"
+  }`;
 
   return (
     <li className={`relative group ${isMobile ? "w-full" : ""}`}>
-      <div
-        className={`flex items-center justify-between cursor-pointer px-3 py-2 rounded-lg transition-all duration-300 ${
-          isMobile 
-            ? "w-full text-gray-700 hover:bg-gray-50 hover:text-purple-600" 
-            : "text-sm hover:bg-white/10 hover:text-purple-200 transform hover:scale-105"
-        }`}
-        onClick={() => isMobile && setOpen(!open)}
-      >
-        <span className="relative">
-          {item.name}
-          <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-300 transition-all duration-300 group-hover:w-full"></span>
-        </span>
-        {hasDropdown && (
-          <ChevronDownIcon className={`w-4 h-4 ml-1 transition-transform duration-300 ${
-            (isMobile && open) || (!isMobile && "group-hover:rotate-180")
-          }`} />
-        )}
-      </div>
+      {hasDropdown ? (
+        <div className={itemClasses} onClick={() => isMobile && setOpen(!open)}>
+          <span className="relative">
+            {item.name}
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-300 transition-all duration-300 group-hover:w-full"></span>
+          </span>
+          <ChevronDownIcon className={`w-4 h-4 ml-1 transition-transform duration-300 ${(isMobile && open) || (!isMobile && "group-hover:rotate-180")}`} />
+        </div>
+      ) : (
+        <Link href={item.href || "#"} className={itemClasses}>
+          <span className="relative">
+            {item.name}
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-300 transition-all duration-300 group-hover:w-full"></span>
+          </span>
+        </Link>
+      )}
 
-      {hasDropdown && (
-        isMobile ? (
+      {hasDropdown &&
+        (isMobile ? (
           <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
             <ul className="pl-4 py-2">
               {item.children.map((child, index) => (
-                <li 
-                  key={child.name}
-                  className="animate-slide-in"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <a
+                <li key={child.name} className="animate-slide-in" style={{ animationDelay: `${index * 0.05}s` }}>
+                  <Link
                     href={child.href}
                     className="block px-2 py-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded transition-all duration-200"
                   >
                     {child.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
         ) : (
           <DropdownMenu items={item.children} />
-        )
-      )}
+        ))}
     </li>
   );
 };

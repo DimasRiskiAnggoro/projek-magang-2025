@@ -24,9 +24,18 @@ export default function BeritaPage() {
         },
       });
       const data = await response.json();
-      setNews(data);
+
+      if (data && Array.isArray(data.data)) {
+        setNews(data.data);
+      } else if (Array.isArray(data)) {
+        setNews(data);
+      } else {
+        console.error("Respons API bukan array yang valid:", data);
+        setNews([]);
+      }
     } catch (error) {
       console.error("Gagal mengambil data berita:", error);
+      setNews([]);
     } finally {
       setLoading(false);
     }
@@ -71,22 +80,57 @@ export default function BeritaPage() {
     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return new Date(dateString).toLocaleDateString('id-ID', options);
   };
-
-  // Helper function to render categories
-  const renderCategories = (categories) => {
-    if (!categories || categories.length === 0) return '-';
+  
+  // PERBAIKAN: Membuat fungsi render kategori lebih aman untuk menangani
+  // data lama (format JSON string) dan data baru (format teks biasa).
+  // Menambahkan pemisah koma untuk multiple kategori.
+  const renderCategory = (category) => {
+    if (!category) {
+      return '-';
+    }
     
+    let categoryData = category;
+    try {
+      // Coba parse, jika berhasil berarti ini adalah JSON string (misal: "\"Berita\"")
+      // dan akan diubah menjadi teks biasa (misal: "Berita").
+      const parsed = JSON.parse(category);
+      categoryData = parsed;
+    } catch (e) {
+      // Jika gagal, berarti ini sudah string biasa. Biarkan saja.
+    }
+
+    // Jika categoryData adalah array, gabungkan dengan koma
+    if (Array.isArray(categoryData)) {
+      return (
+        <div className="flex flex-wrap gap-1">
+          {categoryData.map((cat, index) => (
+            <span key={index} className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              {cat}{index < categoryData.length - 1 ? '' : ''}
+            </span>
+          ))}
+        </div>
+      );
+    }
+
+    // Jika categoryData adalah string dengan koma, pisahkan dan render
+    if (typeof categoryData === 'string' && categoryData.includes(',')) {
+      const categories = categoryData.split(',').map(cat => cat.trim());
+      return (
+        <div className="flex flex-wrap gap-1">
+          {categories.map((cat, index) => (
+            <span key={index} className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              {cat}{index < categories.length - 1 ? ',' : ''}
+            </span>
+          ))}
+        </div>
+      );
+    }
+
+    // Jika hanya satu kategori
     return (
-      <div className="flex flex-wrap gap-1">
-        {categories.map((cat, index) => (
-          <span 
-            key={index}
-            className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-          >
-            {cat}
-          </span>
-        ))}
-      </div>
+      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+        {categoryData}
+      </span>
     );
   };
 
@@ -127,8 +171,9 @@ export default function BeritaPage() {
                 {news.map((item) => (
                   <tr key={item.id} className="border-b dark:border-slate-700">
                     <td className="py-3 px-4 align-top">
+                      {/* Pastikan backend Anda mengirim 'thumbnail_url' */}
                       <img 
-                        src={item.image_url || 'https://placehold.co/600x400/e2e8f0/e2e8f0?text=.'} 
+                        src={item.thumbnail_url || 'https://placehold.co/600x400/e2e8f0/e2e8f0?text=.'} 
                         alt={item.title} 
                         className="h-12 w-16 object-cover rounded"
                         onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/600x400/e2e8f0/e2e8f0?text=.' }}
@@ -142,7 +187,7 @@ export default function BeritaPage() {
                     </td>
                     <td className="py-3 px-4 align-top">{item.author || '-'}</td>
                     <td className="py-3 px-4 align-top">
-                      {renderCategories(item.category)}
+                      {renderCategory(item.category)}
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-500 dark:text-gray-400 align-top">
                       <div className="truncate max-w-[120px]" title={item.slug}>
@@ -160,26 +205,14 @@ export default function BeritaPage() {
                     </td>
                     <td className="py-3 px-4 text-center align-top">
                       {item.pdf_url ? (
-                        <a 
-                          href={item.pdf_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="text-red-500 hover:text-red-700 inline-block"
-                          title="Download PDF"
-                        >
+                        <a href={item.pdf_url} target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-700 inline-block" title="Download PDF">
                           <FileText size={20} />
                         </a>
                       ) : ('-')}
                     </td>
                     <td className="py-3 px-4 text-center align-top">
                       {item.source_url ? (
-                        <a 
-                          href={item.source_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="text-blue-500 hover:text-blue-700 inline-block"
-                          title="Buka Sumber"
-                        >
+                        <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 inline-block" title="Buka Sumber">
                           <LinkIcon size={20} />
                         </a>
                       ) : ('-')}
@@ -191,18 +224,10 @@ export default function BeritaPage() {
                     </td>
                     <td className="py-3 px-4 align-top">
                       <div className="flex space-x-2">
-                        <button 
-                          onClick={() => handleOpenModal(item)} 
-                          className="text-blue-500 hover:text-blue-700 p-1"
-                          title="Edit"
-                        >
+                        <button onClick={() => handleOpenModal(item)} className="text-blue-500 hover:text-blue-700 p-1" title="Edit">
                           <Edit size={18} />
                         </button>
-                        <button 
-                          onClick={() => handleDelete(item.id)} 
-                          className="text-red-500 hover:text-red-700 p-1"
-                          title="Hapus"
-                        >
+                        <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:text-red-700 p-1" title="Hapus">
                           <Trash2 size={18} />
                         </button>
                       </div>
