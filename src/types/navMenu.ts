@@ -41,7 +41,7 @@ const NAV_MENU: NavItem[] = [
     name: "Tentang",
     children: [
       { name: "Profil OPD", href: "/category/tentang/profil-opd" },
-      { name: "Profil Camat Taman Kota Madiun", href: "#" },
+      { name: "Profil Camat Taman Kota Madiun", href: "category/tentang/profil-camat" },
       { name: "Visi Dan Misi", href: "#" },
       { name: "STANDAR PELAYANAN KECAMATAN TAMAN TAHUN 2024 (6 Komponen)", href: "#" },
       { name: "Data Pegawai", href: "#" },
