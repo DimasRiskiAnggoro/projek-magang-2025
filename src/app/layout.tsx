@@ -1,4 +1,4 @@
-// file: app/layout.tsx
+// app/layout.tsx
 
 import "./globals.css";
 import type { Metadata } from "next";
@@ -6,11 +6,8 @@ import { Roboto } from "next/font/google";
 import { FixedPlugin, Layout } from "@/components";
 import ThemeProvider from "@/context/ThemeProvider";
 
-// ⬇️ Hapus import Navbar dan Footer dari sini
-// import { Navbar, Footer } from "@/components";
-
-// ⬇️ Import komponen baru Anda
 import { ConditionalLayout } from "@/components/ConditionalLayout";
+
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -28,6 +25,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = headers().get("x-next-url") || "";
+
+  // ✅ Sesuaikan dengan rute login/admin kamu
+  const hideLayout = pathname.startsWith("/admin/login");
+
   return (
     <html lang="en">
       <head>{/* ... head tags ... */}</head>
