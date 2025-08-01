@@ -1,12 +1,11 @@
 // app/layout.tsx
-
 import "./globals.css";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { FixedPlugin, Layout } from "@/components";
-import ThemeProvider from "@/context/ThemeProvider"; // ⬅️ Tambahkan ini
-// components
+import ThemeProvider from "@/context/ThemeProvider";
 import { Navbar, Footer } from "@/components";
+import { headers } from "next/headers"; // ✅ Import headers untuk deteksi path
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -25,6 +24,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = headers().get("x-next-url") || "";
+
+  // ✅ Sesuaikan dengan rute login/admin kamu
+  const hideLayout = pathname.startsWith("/admin/login");
+
   return (
     <html lang="en">
       <head>
@@ -38,13 +42,18 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.png" type="image/png" />
       </head>
       <body className={roboto.className}>
-        <ThemeProvider> {/* ⬅️ Tambahkan ini */}
-          <Layout>
-            <Navbar />
-            {children}
-            <Footer />
-            <FixedPlugin />
-          </Layout>
+        <ThemeProvider>
+          {/* Kalau halaman login, langsung render children tanpa layout */}
+          {hideLayout ? (
+            children
+          ) : (
+            <Layout>
+              <Navbar />
+              {children}
+              <Footer />
+              <FixedPlugin />
+            </Layout>
+          )}
         </ThemeProvider>
       </body>
     </html>
