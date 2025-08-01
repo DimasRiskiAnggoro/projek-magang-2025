@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { FixedPlugin, Layout } from "@/components";
 import ThemeProvider from "@/context/ThemeProvider";
-
+import { headers } from "next/headers";
 import { ConditionalLayout } from "@/components/ConditionalLayout";
 
 
