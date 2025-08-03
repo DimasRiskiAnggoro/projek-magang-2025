@@ -187,7 +187,6 @@ export default function PPIDCompletePage() {
           </div>
         </section>
 
-        {/* Footer */}
         <footer className="text-center text-white text-opacity-80 py-8">
           <p className="text-lg">© 2025 PPID Kecamatan Taman - Kota Madiun</p>
           <p className="text-sm mt-2">Komitmen kami untuk transparansi dan akuntabilitas</p>

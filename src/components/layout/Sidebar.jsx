@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Newspaper, Users } from "lucide-react";
+import { Home, Newspaper, Users, Tag } from "lucide-react";
 import { useAuth } from "@/context/AuthProvider";
 
 export default function Sidebar({ isOpen }) {
@@ -31,6 +31,14 @@ export default function Sidebar({ isOpen }) {
             <li>
               <a href="/admin/berita" className="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-black dark:hover:text-white font-medium transition">
                 <Newspaper className="mr-2 w-5 h-5" /> Berita
+              </a>
+            </li>
+          )}
+
+          {user.role === 'admin' && (
+            <li>
+              <a href="/admin/kategori" className="flex items-center px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-black dark:hover:text-white font-medium transition">
+                <Tag className="mr-2 w-5 h-5" /> Kategori
               </a>
             </li>
           )}

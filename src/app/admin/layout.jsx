@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
 import AuthProvider from "@/context/AuthProvider";
 
 export default function AdminLayout({ children }) {
@@ -15,7 +15,7 @@ export default function AdminLayout({ children }) {
         <div className="flex-1 flex flex-col">
           <Header onMenuClick={() => setSidebarOpen((prev) => !prev)} />
           <main className="flex-1 p-4 md:p-8">
-              {children}
+            {children}
           </main>
         </div>
       </div>

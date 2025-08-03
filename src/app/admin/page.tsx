@@ -1,5 +1,3 @@
-// app/admin/page.tsx
-
 export default function AdminPage() {
   return (
     <div className="themed-card p-6">

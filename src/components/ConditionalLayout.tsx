@@ -2,7 +2,8 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { Navbar, Footer } from "@/components";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

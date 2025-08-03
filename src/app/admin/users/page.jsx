@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import AdminLayout from '@/components/layout/AdminLayout';
+// HAPUS: import AdminLayout from '@/app/admin/layout';
 import UserModal from '@/components/admin/UserModal';
 import Cookies from 'js-cookie';
 import { Plus, Edit, Trash2 } from 'lucide-react';
@@ -71,7 +71,8 @@ export default function UsersPage() {
   };
 
   return (
-    <AdminLayout>
+    // HAPUS: Tag <AdminLayout> pembuka
+    <>
       <div className="themed-card p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-semibold text-2xl">Manajemen Akun</h2>
@@ -122,6 +123,7 @@ export default function UsersPage() {
           onSave={handleSave}
         />
       )}
-    </AdminLayout>
+    </>
+    // HAPUS: Tag </AdminLayout> penutup
   );
 }

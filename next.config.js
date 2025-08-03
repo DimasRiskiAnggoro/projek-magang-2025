@@ -5,19 +5,19 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "**",
-        pathname: "/**", // ini penting
+        pathname: "/**",
       },
       {
         protocol: "http",
         hostname: "127.0.0.1",
         port: "8000",
-        pathname: "/storage/images/**", // tambahkan ini
+        pathname: "/storage/images/**",
       },
       {
         protocol: "http",
         hostname: "localhost",
         port: "8000",
-        pathname: "/storage/images/**", // tambahkan ini juga
+        pathname: "/storage/images/**",
       },
     ],
   },

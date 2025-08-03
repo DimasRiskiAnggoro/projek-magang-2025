@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import AdminLayout from '@/components/layout/AdminLayout';
+// HAPUS: import AdminLayout dari '@/app/admin/layout';
 import NewsModal from '@/components/admin/NewsModal';
 import Cookies from 'js-cookie';
 import { Plus, Edit, Trash2, FileText, Link as LinkIcon } from 'lucide-react';
@@ -25,9 +25,7 @@ export default function BeritaPage() {
       });
       const data = await response.json();
 
-      if (data && Array.isArray(data.data)) {
-        setNews(data.data);
-      } else if (Array.isArray(data)) {
+      if (Array.isArray(data)) {
         setNews(data);
       } else {
         console.error("Respons API bukan array yang valid:", data);
@@ -81,61 +79,25 @@ export default function BeritaPage() {
     return new Date(dateString).toLocaleDateString('id-ID', options);
   };
   
-  // PERBAIKAN: Membuat fungsi render kategori lebih aman untuk menangani
-  // data lama (format JSON string) dan data baru (format teks biasa).
-  // Menambahkan pemisah koma untuk multiple kategori.
-  const renderCategory = (category) => {
-    if (!category) {
+  const renderCategories = (categories) => {
+    if (!categories || categories.length === 0) {
       return '-';
     }
     
-    let categoryData = category;
-    try {
-      // Coba parse, jika berhasil berarti ini adalah JSON string (misal: "\"Berita\"")
-      // dan akan diubah menjadi teks biasa (misal: "Berita").
-      const parsed = JSON.parse(category);
-      categoryData = parsed;
-    } catch (e) {
-      // Jika gagal, berarti ini sudah string biasa. Biarkan saja.
-    }
-
-    // Jika categoryData adalah array, gabungkan dengan koma
-    if (Array.isArray(categoryData)) {
-      return (
-        <div className="flex flex-wrap gap-1">
-          {categoryData.map((cat, index) => (
-            <span key={index} className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-              {cat}{index < categoryData.length - 1 ? '' : ''}
-            </span>
-          ))}
-        </div>
-      );
-    }
-
-    // Jika categoryData adalah string dengan koma, pisahkan dan render
-    if (typeof categoryData === 'string' && categoryData.includes(',')) {
-      const categories = categoryData.split(',').map(cat => cat.trim());
-      return (
-        <div className="flex flex-wrap gap-1">
-          {categories.map((cat, index) => (
-            <span key={index} className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-              {cat}{index < categories.length - 1 ? ',' : ''}
-            </span>
-          ))}
-        </div>
-      );
-    }
-
-    // Jika hanya satu kategori
     return (
-      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-        {categoryData}
-      </span>
+      <div className="flex flex-wrap gap-1">
+        {categories.map((cat) => (
+          <span key={cat.id} className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+            {cat.name}
+          </span>
+        ))}
+      </div>
     );
   };
 
   return (
-    <AdminLayout>
+    // HAPUS: Tag <AdminLayout> pembuka
+    <>
       <div className="themed-card p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-semibold text-2xl">Manajemen Berita</h2>
@@ -171,9 +133,12 @@ export default function BeritaPage() {
                 {news.map((item) => (
                   <tr key={item.id} className="border-b dark:border-slate-700">
                     <td className="py-3 px-4 align-top">
-                      {/* Pastikan backend Anda mengirim 'thumbnail_url' */}
                       <img 
-                        src={item.thumbnail_url || 'https://placehold.co/600x400/e2e8f0/e2e8f0?text=.'} 
+                        src={
+                          item.images && item.images.length > 0 
+                          ? `${process.env.NEXT_PUBLIC_API_URL}/storage/${item.images[0].path}`
+                          : 'https://placehold.co/600x400/e2e8f0/e2e8f0?text=.'
+                        } 
                         alt={item.title} 
                         className="h-12 w-16 object-cover rounded"
                         onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/600x400/e2e8f0/e2e8f0?text=.' }}
@@ -187,7 +152,7 @@ export default function BeritaPage() {
                     </td>
                     <td className="py-3 px-4 align-top">{item.author || '-'}</td>
                     <td className="py-3 px-4 align-top">
-                      {renderCategory(item.category)}
+                      {renderCategories(item.categories)}
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-500 dark:text-gray-400 align-top">
                       <div className="truncate max-w-[120px]" title={item.slug}>
@@ -204,8 +169,8 @@ export default function BeritaPage() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center align-top">
-                      {item.pdf_url ? (
-                        <a href={item.pdf_url} target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-700 inline-block" title="Download PDF">
+                      {item.pdfs && item.pdfs.length > 0 ? (
+                        <a href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${item.pdfs[0].path}`} target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-700 inline-block" title="Download PDF">
                           <FileText size={20} />
                         </a>
                       ) : ('-')}
@@ -247,6 +212,7 @@ export default function BeritaPage() {
           onSave={handleSave}
         />
       )}
-    </AdminLayout>
+    </>
+    // HAPUS: Tag </AdminLayout> penutup
   );
 }

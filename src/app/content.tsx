@@ -204,7 +204,6 @@ export function Content() {
           </Typography>
         </div>
 
-        {/* Footer section - slide dari bawah */}
         <div 
           ref={el => elementsRef.current[9] = el}
           className={`container mx-auto px-4 py-20 transition-all duration-1000 ease-out delay-1800 transform ${
