@@ -24,11 +24,11 @@ const DropdownMenu = ({ items = [], onClose = () => {} }) => (
         key={item.name}
         href={item.href}
         onClick={onClose}
-        className="block px-6 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 hover:text-purple-600 transition-all duration-300 transform hover:translate-x-2 animate-fade-in-left"
+        className="block px-6 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-black transition-all duration-300 transform hover:translate-x-2 animate-fade-in-left"
         style={{ animationDelay: `${index * 0.05}s` }}
       >
         <span className="flex items-center">
-          <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 opacity-0 transition-opacity duration-300 hover:opacity-100"></span>
+          <span className="w-2 h-2 bg-gray-600 rounded-full mr-3 opacity-0 transition-opacity duration-300 hover:opacity-100"></span>
           {item.name}
         </span>
       </a>
@@ -43,8 +43,8 @@ const NavItem = ({ item, isMobile = false }) => {
 
   const itemClasses = `flex items-center justify-between cursor-pointer px-3 py-2 rounded-lg transition-all duration-300 ${
     isMobile
-      ? "w-full text-gray-700 hover:bg-gray-50 hover:text-purple-600"
-      : "text-sm hover:bg-white/10 hover:text-purple-200 transform hover:scale-105"
+      ? "w-full text-gray-700 hover:bg-gray-50 hover:text-black"
+      : "text-sm text-gray-900 hover:bg-gray-100 hover:text-black transform hover:scale-105"
   }`;
 
   return (
@@ -53,7 +53,7 @@ const NavItem = ({ item, isMobile = false }) => {
         <div className={itemClasses} onClick={() => isMobile && setOpen(!open)}>
           <span className="relative">
             {item.name}
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-300 transition-all duration-300 group-hover:w-full"></span>
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-full"></span>
           </span>
           <ChevronDownIcon className={`w-4 h-4 ml-1 transition-transform duration-300 ${(isMobile && open) || (!isMobile && "group-hover:rotate-180")}`} />
         </div>
@@ -61,7 +61,7 @@ const NavItem = ({ item, isMobile = false }) => {
         <Link href={item.href || "#"} className={itemClasses}>
           <span className="relative">
             {item.name}
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-300 transition-all duration-300 group-hover:w-full"></span>
+            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-600 transition-all duration-300 group-hover:w-full"></span>
           </span>
         </Link>
       )}
@@ -74,7 +74,7 @@ const NavItem = ({ item, isMobile = false }) => {
                 <li key={child.name} className="animate-slide-in" style={{ animationDelay: `${index * 0.05}s` }}>
                   <Link
                     href={child.href}
-                    className="block px-2 py-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded transition-all duration-200"
+                    className="block px-2 py-2 text-sm text-gray-600 hover:text-black hover:bg-gray-50 rounded transition-all duration-200"
                   >
                     {child.name}
                   </Link>
@@ -112,13 +112,10 @@ export function Navbar() {
       blurred={false}
       shadow={false}
       color={isScrolling ? "white" : "transparent"}
-      className={`fixed top-0 z-50 border-0 transition-all duration-500 h-20 ${
-        isScrolling ? "shadow-xl backdrop-blur-md" : ""
-      }`}
+      className="fixed top-0 z-50 border-0 h-20 shadow-lg backdrop-blur-md"
       style={{
-        background: isScrolling 
-          ? 'rgba(255, 255, 255, 0.95)' 
-          : 'linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(79, 70, 229, 0.1) 100%)'
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)'
       }}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-full">
@@ -128,9 +125,7 @@ export function Navbar() {
         </div>
 
         {/* Desktop Menu - Centered */}
-        <ul className={`hidden lg:flex items-center gap-6 transition-all duration-500 ${
-          isScrolling ? "text-gray-900" : "text-white"
-        }`}>
+        <ul className="hidden lg:flex items-center gap-6 text-gray-900">
           {NAV_MENU.map((item, index) => (
             <div 
               key={item.name} 
@@ -144,10 +139,10 @@ export function Navbar() {
 
         {/* Special Buttons - Taman Terdepan & Contact */}
         <div className="hidden lg:flex items-center gap-3">
-          <button className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95">
+          <button className="bg-black hover:bg-gray-800 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 border border-gray-600">
             Taman Terdepan
           </button>
-          <button className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2.5 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 hover:rotate-6">
+          <button className="bg-white hover:bg-gray-100 text-black px-3 py-2.5 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 hover:rotate-6 border border-gray-300">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
               <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
@@ -159,7 +154,7 @@ export function Navbar() {
         <IconButton
           variant="text"
           onClick={() => setOpen((cur) => !cur)}
-          color={isScrolling ? "gray" : "white"}
+          color="gray"
           className="lg:hidden"
         >
           {open ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
@@ -180,10 +175,10 @@ export function Navbar() {
               </div>
             ))}
             <li className="mt-6 pt-4 border-t border-gray-200">
-              <button className="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg text-sm font-medium mb-3 transition-all duration-300 transform hover:scale-105">
+              <button className="w-full bg-black hover:bg-gray-800 text-white px-4 py-3 rounded-lg text-sm font-medium mb-3 transition-all duration-300 transform hover:scale-105 border border-gray-600">
                 Taman Terdepan
               </button>
-              <button className="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-105">
+              <button className="w-full bg-white hover:bg-gray-100 text-black px-4 py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-105 border border-gray-300">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
