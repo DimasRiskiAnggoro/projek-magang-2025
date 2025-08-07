@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 
 export default function UserModal({ user, onClose, onSave }) {
-  // 1. Tambahkan 'role' ke state. Default 'penulis' untuk user baru.
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,7 +23,7 @@ export default function UserModal({ user, onClose, onSave }) {
         email: user.email || '',
         password: '',
         password_confirmation: '',
-        role: user.role || 'penulis', // 2. Ambil role dari data user saat edit
+        role: user.role || 'penulis',
       });
     } else {
        setFormData(prev => ({ ...prev, role: 'penulis' }));
@@ -46,7 +45,6 @@ export default function UserModal({ user, onClose, onSave }) {
       ? `${process.env.NEXT_PUBLIC_API_URL}/api/users/${user.id}`
       : `${process.env.NEXT_PUBLIC_API_URL}/api/users`;
 
-    // 3. Pastikan 'role' dikirim ke API
     const submissionData = {
         name: formData.name,
         email: formData.email,
