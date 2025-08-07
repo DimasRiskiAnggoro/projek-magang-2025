@@ -20,7 +20,7 @@ export default function NewsModal({ news, onClose, onSave }) {
   ]);
   
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [thumbnailBlockId, setThumbnailBlockId] = useState(null);
+  const [thumbnailImageId, setThumbnailImageId] = useState(null); // BARU: simpan ID gambar thumbnail
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [allCategories, setAllCategories] = useState([]);
@@ -62,23 +62,52 @@ export default function NewsModal({ news, onClose, onSave }) {
       if (news.categories) {
         setSelectedCategories(news.categories.map(cat => cat.id));
       }
+
+      // BARU: Set thumbnail image ID dari database
+      setThumbnailImageId(news.thumbnail_image_id);
       
       const blocks = [];
       let blockId = 1;
       
       if (news.images && Array.isArray(news.images)) {
         news.images.forEach((image) => {
-          blocks.push({ id: blockId++, type: 'image', file: null, existingImage: image, caption: image.caption || '', order: image.urutan });
+          blocks.push({ 
+            id: blockId++, 
+            type: 'image', 
+            file: null, 
+            existingImage: image, 
+            caption: image.caption || '', 
+            order: image.urutan,
+            existingId: image.id,
+            existingImageId: image.id // BARU: tambah tracking untuk ID gambar database
+          });
         });
       }
       if (news.contents && Array.isArray(news.contents)) {
         news.contents.forEach((content) => {
-          blocks.push({ id: blockId++, type: content.type, content: content.content, metadata: content.metadata || {}, existingContentId: content.id, order: content.urutan });
+          blocks.push({ 
+            id: blockId++, 
+            type: content.type, 
+            content: content.content, 
+            metadata: content.metadata || {}, 
+            existingContentId: content.id, 
+            order: content.urutan,
+            existingId: content.id
+          });
         });
       }
       if (news.pdfs && Array.isArray(news.pdfs)) {
         news.pdfs.forEach((pdf) => {
-          blocks.push({ id: blockId++, type: 'pdf', file: null, existingPdf: pdf, title: pdf.title || 'Dokumen PDF', description: pdf.description || '', order: pdf.urutan });
+          blocks.push({ 
+            id: blockId++, 
+            type: 'pdf', 
+            file: null, 
+            existingPdf: pdf, 
+            title: pdf.title || 'Dokumen PDF', 
+            description: pdf.description || '', 
+            order: pdf.urutan,
+            existingId: pdf.id
+          });
         });
       }
       
@@ -89,16 +118,11 @@ export default function NewsModal({ news, onClose, onSave }) {
       blocks.sort((a, b) => a.order - b.order);
       setContentBlocks(blocks);
       setNextBlockId(blockId);
-      
-      const firstImageBlock = blocks.find(block => block.type === 'image');
-      if (firstImageBlock) {
-        setThumbnailBlockId(firstImageBlock.id);
-      }
 
     } else {
       setContentBlocks([{ id: 1, type: 'paragraph', content: '', order: 1 }]);
       setNextBlockId(2);
-      setThumbnailBlockId(null);
+      setThumbnailImageId(null);
       setSelectedCategories([]);
       setImagesToDelete([]);
       setPdfsToDelete([]);
@@ -134,6 +158,11 @@ export default function NewsModal({ news, onClose, onSave }) {
     if (blockToRemove) {
       if (blockToRemove.type === 'image' && blockToRemove.existingImage) {
         setImagesToDelete(prev => [...prev, blockToRemove.existingImage.id]);
+        
+        // BARU: Reset thumbnail jika gambar yang dihapus adalah thumbnail
+        if (thumbnailImageId === blockToRemove.existingImage.id) {
+          setThumbnailImageId(null);
+        }
       } else if (blockToRemove.type === 'pdf' && blockToRemove.existingPdf) {
         setPdfsToDelete(prev => [...prev, blockToRemove.existingPdf.id]);
       } else if (blockToRemove.existingContentId) {
@@ -151,7 +180,6 @@ export default function NewsModal({ news, onClose, onSave }) {
     setContentBlocks(prev => prev.map(block => block.id === blockId ? { ...block, ...updates } : block));
   };
 
-  // [KODE YANG DIPERBAIKI]
   const moveBlock = (blockId, direction) => {
     let reorderedBlocks = [...contentBlocks];
     const index = reorderedBlocks.findIndex(block => block.id === blockId);
@@ -167,25 +195,56 @@ export default function NewsModal({ news, onClose, onSave }) {
       order: idx + 1
     }));
     
-    // Set state untuk urutan blok yang baru
+    console.log('Updated block orders:', finalBlocks.map(b => ({ id: b.id, type: b.type, order: b.order, existingId: b.existingId })));
+    
     setContentBlocks(finalBlocks);
-
-    // [LOGIKA BARU] Setelah urutan diubah, cari gambar pertama dan set sebagai thumbnail
-    const newFirstImageBlock = finalBlocks.find(block => block.type === 'image');
-    if (newFirstImageBlock) {
-      setThumbnailBlockId(newFirstImageBlock.id);
-    } else {
-      // Jika tidak ada gambar lagi, hapus thumbnail
-      setThumbnailBlockId(null);
-    }
   };
 
   const handleBlockFileUpload = (blockId, file) => {
     updateBlock(blockId, { file: file });
   };
 
+  // BARU: Fungsi set thumbnail yang lebih robust
   const setThumbnail = (blockId) => {
-    setThumbnailBlockId(blockId);
+    const block = contentBlocks.find(b => b.id === blockId);
+    if (block && block.type === 'image') {
+      // Jika ini adalah gambar existing dari database
+      if (block.existingImageId) {
+        setThumbnailImageId(block.existingImageId);
+        console.log('Set thumbnail to existing image ID:', block.existingImageId);
+      } else if (block.file) {
+        // Jika ini adalah gambar baru yang belum diupload, tandai untuk dijadikan thumbnail nanti
+        setThumbnailImageId(`new_${blockId}`);
+        console.log('Set thumbnail to new image block:', blockId);
+      }
+    }
+  };
+
+  // BARU: Fungsi untuk mengecek apakah suatu block adalah thumbnail
+  const isThumbnailBlock = (block) => {
+    if (block.type !== 'image') return false;
+    
+    // Untuk gambar existing
+    if (block.existingImageId && thumbnailImageId === block.existingImageId) {
+      return true;
+    }
+    
+    // Untuk gambar baru
+    if (block.file && thumbnailImageId === `new_${block.id}`) {
+      return true;
+    }
+    
+    return false;
+  };
+
+  // Buat data urutan blok untuk backend
+  const createBlockOrdersData = () => {
+    return contentBlocks.map(block => ({
+      id: block.existingId || null,
+      localId: block.id,
+      type: block.type,
+      order: block.order
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -212,17 +271,34 @@ export default function NewsModal({ news, onClose, onSave }) {
       submissionData.append('_method', 'PUT');
     }
     
+    // Kirim data urutan blok
+    const blockOrders = createBlockOrdersData();
+    console.log('Sending block orders:', blockOrders);
+    
+    blockOrders.forEach((blockOrder, index) => {
+      if (blockOrder.id) {
+        submissionData.append(`block_orders[${index}][id]`, blockOrder.id);
+      }
+      submissionData.append(`block_orders[${index}][type]`, blockOrder.type);
+      submissionData.append(`block_orders[${index}][order]`, blockOrder.order);
+    });
+    
     const newContents = [];
     const newImages = [];
     const newImageCaptions = [];
     const newPdfsData = { files: [], titles: [], descriptions: [] };
     const localImagesToDelete = [...imagesToDelete];
+    let newThumbnailImageId = null; // BARU: untuk tracking thumbnail gambar baru
 
     contentBlocks.forEach(block => {
       switch (block.type) {
         case 'heading':
         case 'paragraph':
-          const contentData = { type: block.type, content: block.content || '' };
+          const contentData = { 
+            type: block.type, 
+            content: block.content || '', 
+            order: block.order
+          };
           if (isEditing && block.existingContentId) {
             contentData.id = block.existingContentId;
           }
@@ -233,6 +309,12 @@ export default function NewsModal({ news, onClose, onSave }) {
           if (block.file) { 
             newImages.push(block.file);
             newImageCaptions.push(block.caption || '');
+            
+            // BARU: Jika ini adalah thumbnail yang baru
+            if (thumbnailImageId === `new_${block.id}`) {
+              newThumbnailImageId = newImages.length - 1; // Index dalam array newImages
+            }
+            
             if (isEditing && block.existingImage) {
               localImagesToDelete.push(block.existingImage.id);
             }
@@ -256,6 +338,7 @@ export default function NewsModal({ news, onClose, onSave }) {
       if(content.id) { submissionData.append(`contents[${index}][id]`, content.id); }
       submissionData.append(`contents[${index}][type]`, content.type);
       submissionData.append(`contents[${index}][content]`, content.content);
+      submissionData.append(`contents[${index}][order]`, content.order);
     });
 
     newImages.forEach((file, index) => {
@@ -273,6 +356,18 @@ export default function NewsModal({ news, onClose, onSave }) {
     [...new Set(pdfsToDelete)].forEach(id => submissionData.append('delete_pdfs[]', id));
     [...new Set(contentsToDelete)].forEach(id => submissionData.append('delete_contents[]', id));
 
+    // BARU: Kirim data thumbnail
+    if (thumbnailImageId && typeof thumbnailImageId === 'number') {
+      // Thumbnail adalah gambar existing
+      submissionData.append('thumbnail_image_id', thumbnailImageId);
+    }
+    // Untuk gambar baru yang dijadikan thumbnail, akan dihandle di backend
+
+    console.log('FormData contents:');
+    for (let [key, value] of submissionData.entries()) {
+      console.log(key, value);
+    }
+
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -288,8 +383,29 @@ export default function NewsModal({ news, onClose, onSave }) {
         }
         throw new Error(errorMessage);
       }
+      
+      const responseData = await response.json();
+      console.log('Server response:', responseData);
+      
+      // BARU: Jika ada gambar baru yang dijadikan thumbnail, update via API terpisah
+      if (newThumbnailImageId !== null && responseData.images && responseData.images.length > 0) {
+        const newImageId = responseData.images[newThumbnailImageId]?.id;
+        if (newImageId) {
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${responseData.id}/set-thumbnail`, {
+            method: 'POST',
+            headers: { 
+              'Authorization': `Bearer ${token}`, 
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image_id: newImageId }),
+          });
+        }
+      }
+      
       onSave();
     } catch (err) {
+      console.error('Submit error:', err);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -381,12 +497,24 @@ export default function NewsModal({ news, onClose, onSave }) {
                           </select>
                         ) : (<span>{block.type.toUpperCase()}</span>)}
                         <span>#{block.order}</span>
+                        {block.existingId && <span className="text-xs bg-gray-200 px-1 rounded">DB:{block.existingId}</span>}
                       </div>
                       <div className="flex items-center gap-1">
-                          <button type="button" onClick={() => setThumbnail(block.id)} className={`flex items-center gap-1 px-2 py-1 rounded text-xs ${thumbnailBlockId === block.id ? 'bg-yellow-500 text-white' : 'bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-300 hover:bg-yellow-400'}`}>
-                              {thumbnailBlockId === block.id ? <Star size={12} /> : <StarOff size={12} />}
-                              {thumbnailBlockId === block.id ? 'Thumbnail' : 'Set Thumbnail'}
+                        {/* BARU: Tombol thumbnail yang sudah diperbaiki */}
+                        {block.type === 'image' && (
+                          <button 
+                            type="button" 
+                            onClick={() => setThumbnail(block.id)} 
+                            className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
+                              isThumbnailBlock(block)
+                                ? 'bg-yellow-500 text-white' 
+                                : 'bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-300 hover:bg-yellow-400'
+                            }`}
+                          >
+                            {isThumbnailBlock(block) ? <Star size={12} /> : <StarOff size={12} />}
+                            {isThumbnailBlock(block) ? 'Thumbnail' : 'Set Thumbnail'}
                           </button>
+                        )}
                         <button type="button" onClick={() => moveBlock(block.id, 'up')} disabled={index === 0} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"><MoveUp size={14} /></button>
                         <button type="button" onClick={() => moveBlock(block.id, 'down')} disabled={index === contentBlocks.length - 1} className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30"><MoveDown size={14} /></button>
                         <button type="button" onClick={() => removeBlock(block.id)} disabled={contentBlocks.length <= 1} className="p-1 text-red-400 hover:text-red-600 disabled:opacity-30"><Trash2 size={14} /></button>

@@ -14,6 +14,7 @@ type NewsDetail = {
   published_at: string;
   status: string;
   source_url?: string;
+  thumbnail_image_id?: number; // ID gambar thumbnail
   categories: Array<{
     id: number;
     name: string;
@@ -79,12 +80,23 @@ const NewsDetailPage = () => {
     setError(null);
     
     try {
-      // Ambil semua berita dulu, lalu cari berdasarkan slug
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/news`, {
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
+      // Gunakan endpoint showBySlug jika ada, atau fallback ke method lama
+      let response;
+      try {
+        // Coba endpoint showBySlug terlebih dahulu
+        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/news/slug/${slug}`, {
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+      } catch (slugError) {
+        // Fallback ke method lama jika endpoint slug tidak ada
+        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/news`, {
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+      }
 
       if (!response.ok) {
         throw new Error('Gagal mengambil data berita');
@@ -92,8 +104,15 @@ const NewsDetailPage = () => {
 
       const data = await response.json();
 
-      if (Array.isArray(data)) {
-        // Cari berita berdasarkan slug dan pastikan statusnya published
+      // Jika menggunakan endpoint slug, data langsung merupakan berita
+      if (data.slug === slug) {
+        if (data.status !== 'published') {
+          throw new Error('Berita tidak ditemukan atau belum dipublikasikan');
+        }
+        setNews(data);
+      } 
+      // Jika menggunakan method lama (array berita)
+      else if (Array.isArray(data)) {
         const foundNews = data.find(item => item.slug === slug && item.status === 'published');
         
         if (!foundNews) {
@@ -120,6 +139,20 @@ const NewsDetailPage = () => {
     router.push('/berita');
   };
 
+  // Filter gambar untuk konten (EXCLUDE thumbnail)
+  const getContentImages = () => {
+    if (!news?.images || news.images.length === 0) return [];
+    
+    // EXCLUDE gambar yang dijadikan thumbnail berdasarkan thumbnail_image_id
+    return news.images.filter(img => {
+      // Jika ada thumbnail_image_id yang diset, exclude gambar tersebut
+      if (news.thumbnail_image_id && img.id === news.thumbnail_image_id) {
+        return false; // Jangan tampilkan di konten
+      }
+      return true; // Tampilkan gambar lainnya
+    }).sort((a, b) => (a.urutan || 0) - (b.urutan || 0)); // Sort berdasarkan urutan
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -129,7 +162,6 @@ const NewsDetailPage = () => {
             <div className="h-6 bg-gray-200 rounded w-48 mb-8"></div>
             <div className="h-10 bg-gray-200 rounded w-3/4 mb-4"></div>
             <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-            <div className="h-64 bg-gray-200 rounded mb-6"></div>
             <div className="space-y-4">
               <div className="h-4 bg-gray-200 rounded"></div>
               <div className="h-4 bg-gray-200 rounded"></div>
@@ -162,9 +194,10 @@ const NewsDetailPage = () => {
     );
   }
 
-  // Gabungkan dan urutkan semua konten berdasarkan urutan
+  // Gabungkan dan urutkan semua konten berdasarkan urutan (EXCLUDE gambar thumbnail)
+  const contentImages = getContentImages(); // Sudah exclude thumbnail dan sorted
   const allContent = [
-    ...news.images.map(img => ({ ...img, type: 'image', order: img.urutan || 0 })),
+    ...contentImages.map(img => ({ ...img, type: 'image', order: img.urutan || 0 })),
     ...news.contents.map(content => ({ ...content, order: content.urutan || 0 })),
     ...news.pdfs.map(pdf => ({ ...pdf, type: 'pdf', order: pdf.urutan || 0 }))
   ].sort((a, b) => a.order - b.order);
@@ -234,117 +267,123 @@ const NewsDetailPage = () => {
           )}
         </header>
 
-        {/* Konten artikel */}
+        {/* Konten artikel - TANPA gambar thumbnail */}
         <article className="space-y-6">
-          {allContent.map((item, index) => {
-            // Render gambar
-            if ('type' in item && item.type === 'image') {
-              const imageItem = item as NewsDetail['images'][0] & { type: string };
-              return (
-                <figure key={`image-${imageItem.id}-${index}`} className="mb-8">
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${imageItem.path}`}
-                    alt={imageItem.caption || news.title}
-                    className="w-full rounded-lg shadow-lg"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/img/kesehatan.jpg';
-                    }}
-                  />
-                  {imageItem.caption && (
-                    <figcaption className="text-center text-gray-600 text-sm mt-3 italic">
-                      {imageItem.caption}
-                    </figcaption>
-                  )}
-                </figure>
-              );
-            }
+          {allContent.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>Tidak ada konten untuk ditampilkan.</p>
+            </div>
+          ) : (
+            allContent.map((item, index) => {
+              // Render gambar konten (yang BUKAN thumbnail)
+              if ('type' in item && item.type === 'image') {
+                const imageItem = item as typeof news.images[0] & { type: string };
+                return (
+                  <figure key={`image-${imageItem.id}-${index}`} className="mb-8">
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${imageItem.path}`}
+                      alt={imageItem.caption || news.title}
+                      className="w-full rounded-lg shadow-lg"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/img/kesehatan.jpg';
+                      }}
+                    />
+                    {imageItem.caption && (
+                      <figcaption className="text-center text-gray-600 text-sm mt-3 italic">
+                        {imageItem.caption}
+                      </figcaption>
+                    )}
+                  </figure>
+                );
+              }
 
-            // Render PDF
-            if ('type' in item && item.type === 'pdf') {
-              const pdfItem = item as NewsDetail['pdfs'][0] & { type: string };
-              return (
-                <div key={`pdf-${pdfItem.id}-${index}`} className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-lg font-semibold text-gray-800 mb-1">
-                        {pdfItem.title || pdfItem.original_name || 'Dokumen PDF'}
-                      </h4>
-                      
-                      {pdfItem.description && (
-                        <p className="text-gray-600 mb-2">{pdfItem.description}</p>
-                      )}
-                      
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                        {pdfItem.file_size && (
-                          <span>Ukuran: {formatFileSize(pdfItem.file_size)}</span>
-                        )}
-                        <span>Format: PDF</span>
-                      </div>
-                      
-                      <div className="flex gap-3">
-                        <a
-                          href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${pdfItem.path}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              // Render PDF
+              if ('type' in item && item.type === 'pdf') {
+                const pdfItem = item as typeof news.pdfs[0] & { type: string };
+                return (
+                  <div key={`pdf-${pdfItem.id}-${index}`} className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                          <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                           </svg>
-                          Lihat PDF
-                        </a>
+                        </div>
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-lg font-semibold text-gray-800 mb-1">
+                          {pdfItem.title || pdfItem.original_name || 'Dokumen PDF'}
+                        </h4>
                         
-                        <a
-                          href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${pdfItem.path}`}
-                          download
-                          className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          Download
-                        </a>
+                        {pdfItem.description && (
+                          <p className="text-gray-600 mb-2">{pdfItem.description}</p>
+                        )}
+                        
+                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                          {pdfItem.file_size && (
+                            <span>Ukuran: {formatFileSize(pdfItem.file_size)}</span>
+                          )}
+                          <span>Format: PDF</span>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <a
+                            href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${pdfItem.path}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Lihat PDF
+                          </a>
+                          
+                          <a
+                            href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${pdfItem.path}`}
+                            download
+                            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Download
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            }
-
-            // Render content (heading/paragraph)
-            if ('content' in item) {
-              const contentItem = item as NewsDetail['contents'][0];
-              
-              if (contentItem.type === 'heading') {
-                return (
-                  <h2 key={`content-${contentItem.id}-${index}`} className="text-2xl font-bold text-gray-800 mb-4 mt-8">
-                    {contentItem.content}
-                  </h2>
                 );
               }
-              
-              if (contentItem.type === 'paragraph') {
-                return (
-                  <div 
-                    key={`content-${contentItem.id}-${index}`}
-                    className="text-gray-700 leading-relaxed text-lg"
-                    dangerouslySetInnerHTML={{ __html: contentItem.content }}
-                  />
-                );
-              }
-            }
 
-            return null;
-          })}
+              // Render content (heading/paragraph)
+              if ('content' in item) {
+                const contentItem = item as typeof news.contents[0];
+                
+                if (contentItem.type === 'heading') {
+                  return (
+                    <h2 key={`content-${contentItem.id}-${index}`} className="text-2xl font-bold text-gray-800 mb-4 mt-8">
+                      {contentItem.content}
+                    </h2>
+                  );
+                }
+                
+                if (contentItem.type === 'paragraph') {
+                  return (
+                    <div 
+                      key={`content-${contentItem.id}-${index}`}
+                      className="text-gray-700 leading-relaxed text-lg"
+                      dangerouslySetInnerHTML={{ __html: contentItem.content }}
+                    />
+                  );
+                }
+              }
+
+              return null;
+            })
+          )}
         </article>
 
         {/* Link sumber jika ada */}

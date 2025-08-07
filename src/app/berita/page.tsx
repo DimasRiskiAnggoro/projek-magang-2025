@@ -13,6 +13,7 @@ type NewsItem = {
   published_at: string;
   status: string;
   source_url?: string;
+  thumbnail_image_id?: number; // ID gambar thumbnail
   categories: Array<{
     id: number;
     name: string;
@@ -21,6 +22,7 @@ type NewsItem = {
     id: number;
     path: string;
     caption?: string;
+    urutan: number;
   }>;
   contents: Array<{
     id: number;
@@ -33,6 +35,11 @@ type NewsItem = {
     title?: string;
     description?: string;
   }>;
+  thumbnailImage?: { // relasi thumbnail image dari backend
+    id: number;
+    path: string;
+    caption?: string;
+  };
 };
 
 // Format tanggal Indonesia
@@ -48,12 +55,30 @@ const formatTanggal = (tanggal: string) => {
 
 // Komponen kartu berita
 const NewsCard = ({ news }: { news: NewsItem }) => {
-  // Ambil gambar pertama atau gunakan fallback
+  // Fungsi untuk mengambil gambar thumbnail yang sudah diset dari admin
   const getImageUrl = () => {
-    if (news.images && news.images.length > 0) {
-      return `${process.env.NEXT_PUBLIC_API_URL}/storage/${news.images[0].path}`;
+    // Prioritas 1: Gunakan thumbnail yang sudah diset dari admin (relasi thumbnailImage)
+    if (news.thumbnailImage) {
+      return `${process.env.NEXT_PUBLIC_API_URL}/storage/${news.thumbnailImage.path}`;
     }
-    return "/img/kesehatan.jpg"; // fallback image
+
+    // Prioritas 2: Cari gambar berdasarkan thumbnail_image_id
+    if (news.thumbnail_image_id && news.images) {
+      const thumbnailImage = news.images.find(img => img.id === news.thumbnail_image_id);
+      if (thumbnailImage) {
+        return `${process.env.NEXT_PUBLIC_API_URL}/storage/${thumbnailImage.path}`;
+      }
+    }
+
+    // Prioritas 3: Gunakan gambar pertama berdasarkan urutan
+    if (news.images && news.images.length > 0) {
+      // Sort berdasarkan urutan, kemudian ambil yang pertama
+      const sortedImages = [...news.images].sort((a, b) => a.urutan - b.urutan);
+      return `${process.env.NEXT_PUBLIC_API_URL}/storage/${sortedImages[0].path}`;
+    }
+
+    // Prioritas 4: Fallback ke gambar default
+    return "/img/kesehatan.jpg";
   };
 
   // Ambil deskripsi dari excerpt atau content pertama
@@ -73,10 +98,14 @@ const NewsCard = ({ news }: { news: NewsItem }) => {
     return "Ini adalah deskripsi singkat dari berita yang ditampilkan pada halaman ini. Berita ini berisi informasi penting.";
   };
 
-  // Ambil kategori pertama atau gunakan "Umum"
-  const getCategory = () => {
+  // Ambil kategori untuk ditampilkan
+  const getCategoriesText = () => {
     if (news.categories && news.categories.length > 0) {
-      return news.categories[0].name;
+      if (news.categories.length === 1) {
+        return news.categories[0].name;
+      } else {
+        return news.categories.map(cat => cat.name).join(', ');
+      }
     }
     return "Umum";
   };
@@ -101,8 +130,11 @@ const NewsCard = ({ news }: { news: NewsItem }) => {
         <p className="text-gray-600 text-sm line-clamp-2 mb-1">
           {getDescription()}
         </p>
-        <p className="text-xs text-gray-500 mb-3">
+        <p className="text-xs text-gray-500 mb-1">
           Diposting oleh {news.author || "Admin Kecamatan"} pada {formatTanggal(news.published_at)}
+        </p>
+        <p className="text-xs text-blue-600 font-medium mb-3">
+          Kategori: {getCategoriesText()}
         </p>
         <Link
           href={`/berita/${news.slug}`}
@@ -137,7 +169,6 @@ const BeritaPage = () => {
     setError(null);
     
     try {
-      // Gunakan endpoint yang sama seperti di admin, tapi tanpa token untuk public
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/news`, {
         headers: {
           'Accept': 'application/json',
