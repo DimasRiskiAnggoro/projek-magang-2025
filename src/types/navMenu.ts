@@ -42,8 +42,8 @@ const NAV_MENU: NavItem[] = [
     children: [
       { name: "Profil OPD", href: "/category/tentang/profil-opd" },
       { name: "Profil Camat Taman Kota Madiun", href: "category/tentang/profil-camat" },
-      { name: "Visi Dan Misi", href: "#" },
-      { name: "STANDAR PELAYANAN KECAMATAN TAMAN TAHUN 2024 (6 Komponen)", href: "#" },
+      { name: "Visi Dan Misi", href: "category/tentang/visi-misi" },
+      { name: "STANDAR PELAYANAN KECAMATAN TAMAN TAHUN 2024 (6 Komponen)", href: "/category/tentang/standar-pelayanan" },
       { name: "Data Pegawai", href: "#" },
       { name: "Tupoksi", href: "#" },
       { name: "SK", href: "#" },
@@ -86,9 +86,9 @@ const NAV_MENU: NavItem[] = [
       { name: "APLIKASI ONLINE KECAMATAN TAMAN", href: "#" },
     ],
   },
-  { name: "FAQ", children: [] },
+  { name: "FAQ", href: "/category/faq" },
   { name: "VISIT TAMAN", children: [] },
-  { name: "JALUR WISATA", children: [] },
+  { name: "JALUR WISATA", href: "https://www.google.com/maps/d/u/0/viewer?ll=-7.642359646339356%2C111.52741&z=14&mid=1t8-sRMlLijK-tNVcdTStI8x_29FMDKQ"  },
 ];
 
 export default NAV_MENU;
