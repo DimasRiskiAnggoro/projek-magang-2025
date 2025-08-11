@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
-// Tipe data berita detail sesuai struktur admin
 type NewsDetail = {
   id: number;
   title: string;
@@ -14,7 +13,7 @@ type NewsDetail = {
   published_at: string;
   status: string;
   source_url?: string;
-  thumbnail_image_id?: number; // ID gambar thumbnail
+  thumbnail_image_id?: number;
   categories: Array<{
     id: number;
     name: string;
@@ -61,6 +60,34 @@ const formatFileSize = (bytes: number) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+// Fungsi untuk memformat konten dengan line breaks dan indentasi
+const formatContent = (content: string) => {
+  if (!content) return '';
+  
+  // Bersihkan HTML tags jika ada
+  let text = content.replace(/<[^>]*>/g, '');
+  
+  // Kembalikan text apa adanya tanpa formatting tambahan
+  return text;
+};
+
+// Komponen untuk render konten yang diformat
+const FormattedContent: React.FC<{ content: string }> = ({ content }) => {
+  if (!content) return null;
+  
+  // Bersihkan HTML tags dan tampilkan text apa adanya
+  const cleanText = content.replace(/<[^>]*>/g, '');
+  
+  return (
+    <div 
+      className="text-gray-700 leading-relaxed whitespace-pre-line"
+      style={{ whiteSpace: 'pre-line' }}
+    >
+      {cleanText}
+    </div>
+  );
 };
 
 const NewsDetailPage = () => {
@@ -156,7 +183,7 @@ const NewsDetailPage = () => {
   // Loading state
   if (loading) {
     return (
-      <main className="pt-24 px-4 sm:px-6 lg:px-8 min-h-screen bg-white">
+      <main className="pt-24 px-4 sm:px-6 lg:px-8 min-h-screen bg-white pb-16">
         <div className="max-w-4xl mx-auto">
           <div className="animate-pulse">
             <div className="h-6 bg-gray-200 rounded w-48 mb-8"></div>
@@ -176,7 +203,7 @@ const NewsDetailPage = () => {
   // Error state
   if (error || !news) {
     return (
-      <main className="pt-24 px-4 sm:px-6 lg:px-8 min-h-screen bg-white">
+      <main className="pt-24 px-4 sm:px-6 lg:px-8 min-h-screen bg-white pb-16">
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
             <div className="text-red-500 text-6xl mb-4">⚠️</div>
@@ -203,7 +230,7 @@ const NewsDetailPage = () => {
   ].sort((a, b) => a.order - b.order);
 
   return (
-    <main className="pt-24 px-4 sm:px-6 lg:px-8 min-h-screen bg-white">
+          <main className="pt-24 px-4 sm:px-6 lg:px-8 min-h-screen bg-white pb-16">
       <div className="max-w-4xl mx-auto">
         {/* Breadcrumb */}
         <nav className="mb-8">
@@ -257,17 +284,9 @@ const NewsDetailPage = () => {
               </div>
             )}
           </div>
-
-          {/* Excerpt */}
-          {news.excerpt && (
-            <div className="text-lg text-gray-700 leading-relaxed mb-8 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-              <p className="font-medium text-blue-800 mb-2">Ringkasan</p>
-              <p>{news.excerpt}</p>
-            </div>
-          )}
         </header>
 
-        {/* Konten artikel - TANPA gambar thumbnail */}
+        {/* Konten artikel - TANPA gambar thumbnail dan TANPA excerpt */}
         <article className="space-y-6">
           {allContent.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
@@ -358,7 +377,7 @@ const NewsDetailPage = () => {
                 );
               }
 
-              // Render content (heading/paragraph)
+              // Render content (heading/paragraph) dengan formatting yang diperbaiki
               if ('content' in item) {
                 const contentItem = item as typeof news.contents[0];
                 
@@ -372,11 +391,9 @@ const NewsDetailPage = () => {
                 
                 if (contentItem.type === 'paragraph') {
                   return (
-                    <div 
-                      key={`content-${contentItem.id}-${index}`}
-                      className="text-gray-700 leading-relaxed text-lg"
-                      dangerouslySetInnerHTML={{ __html: contentItem.content }}
-                    />
+                    <div key={`content-${contentItem.id}-${index}`}>
+                      <FormattedContent content={contentItem.content} />
+                    </div>
                   );
                 }
               }
@@ -401,15 +418,7 @@ const NewsDetailPage = () => {
           </div>
         )}
 
-        {/* Tombol kembali */}
-        <div className="mt-12 pt-8 border-t">
-          <button
-            onClick={handleBack}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            Kembali ke Daftar Berita
-          </button>
-        </div>
+
       </div>
     </main>
   );

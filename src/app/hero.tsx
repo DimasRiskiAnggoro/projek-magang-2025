@@ -1,72 +1,76 @@
 "use client";
 
-import { IconButton, Typography } from "@material-tailwind/react";
+import React, { useState, useEffect } from 'react';
 
 function Hero() {
+  // Array gambar untuk hero
+  const heroImages = [
+    {
+      id: 2,
+      src: "/image/image-2.png", 
+      alt: "Pemandangan Kota Madiun 2",
+      thumbnail: "/image/image-2.png"
+    },
+    {
+      id: 4,
+      src: "/image/image-4.jpeg",
+      alt: "Pemandangan Kota Madiun 4",
+      thumbnail: "/image/image-4.jpeg"
+    }
+  ];
+
+  // State untuk gambar yang sedang aktif
+  const [activeImage, setActiveImage] = useState(heroImages[0]);
+
+  // Auto-play carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveImage(currentImage => {
+        const currentIndex = heroImages.findIndex(img => img.id === currentImage.id);
+        const nextIndex = currentIndex < heroImages.length - 1 ? currentIndex + 1 : 0;
+        return heroImages[nextIndex];
+      });
+    }, 5000); // Ganti gambar setiap 5 detik
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Video Background */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover"
-        autoPlay
-        loop
-        muted
-        playsInline
-      >
-        <source src="/video/PesonaKotaMadiun.mp4" type="video/mp4" />
-        {/* Fallback untuk browser yang tidak support video */}
-        <div className="absolute inset-0 w-full h-full bg-[url('/image/image-4.jpeg')] bg-cover bg-no-repeat" />
-      </video>
+      {/* Main Hero Image */}
+      <div 
+        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-700 ease-in-out"
+        style={{
+          backgroundImage: `url('${activeImage.src}')`
+        }}
+      />
              
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 h-full w-full bg-gray-900/75" />
-             
-      {/* Content */}
-      <div className="grid min-h-screen px-8">
-        <div className="container relative z-10 my-auto mx-auto grid place-items-center text-center">
-          
-          {/* Logo */}
-          <div className="mb-8">
-            <img 
-              src="/icons/madiun-hero.png" 
-              alt="Logo Kota Madiun" 
-              className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 mx-auto object-contain drop-shadow-2xl"
-              style={{
-                filter: 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.3))'
-              }}
-            />
-          </div>
 
-          <Typography variant="h1" color="white">
-            Selamat Datang di Website Kecamatan Taman kota Madiun
-          </Typography>
-          <Typography
-            variant="lead"
-            color="white"
-            className="mt-4 mb-12 w-full md:max-w-full lg:max-w-3xl"
-          >
-            Website resmi informasi dan komunikasi publik Kota Madiun
-          </Typography>
-          <Typography
-            variant="paragraph"
-            color="white"
-            className="mt-1 mb-7 font-medium uppercase"
-          >
-            Kunjungi kami di
-          </Typography>
-          <div className="gap-8 flex">
-            <IconButton variant="text" color="white" size="sm">
-              <i className="fa-brands fa-twitter text-base" />
-            </IconButton>
-            <IconButton variant="text" color="white" size="sm">
-              <i className="fa-brands fa-facebook text-base" />
-            </IconButton>
-            <IconButton variant="text" color="white" size="sm">
-              <i className="fa-brands fa-instagram text-base" />
-            </IconButton>
-          </div>
+             
+      {/* Thumbnail Carousel at Bottom */}
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="flex items-center gap-2">
+          {heroImages.map((image, index) => (
+            <button
+              key={image.id}
+              onClick={() => setActiveImage(image)}
+              className={`relative overflow-hidden transition-all duration-300 ${
+                activeImage.id === image.id 
+                  ? 'ring-3 ring-blue-500 shadow-xl' 
+                  : 'ring-1 ring-white/50 hover:ring-white/80'
+              }`}
+            >
+              <img
+                src={image.thumbnail}
+                alt={image.alt}
+                className="w-24 h-16 object-cover"
+              />
+            </button>
+          ))}
         </div>
       </div>
+
+
     </div>
   );
 }

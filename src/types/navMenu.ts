@@ -9,7 +9,7 @@ export interface NavItem {
   children?: NavChild[];
 }
 
-// 2. Data NAV_MENU yang sudah sesuai interface
+// Data NAV_MENU - hanya mengubah href untuk PPID dengan slug yang tepat
 const NAV_MENU: NavItem[] = [
   { name: "Home", href: "/" },
   { name: "Berita", href: "/berita" },
@@ -41,8 +41,8 @@ const NAV_MENU: NavItem[] = [
     name: "Tentang",
     children: [
       { name: "Profil OPD", href: "/category/tentang/profil-opd" },
-      { name: "Profil Camat Taman Kota Madiun", href: "category/tentang/profil-camat" },
-      { name: "Visi Dan Misi", href: "category/tentang/visi-misi" },
+      { name: "Profil Camat Taman Kota Madiun", href: "/berita/profil-camat-taman-kota-madiun" },
+      { name: "Visi Dan Misi", href: "/berita/visi-dan-misi-kecamatan-taman-kota-madiun" },
       { name: "STANDAR PELAYANAN KECAMATAN TAMAN TAHUN 2024 (6 Komponen)", href: "/category/tentang/standar-pelayanan" },
       { name: "Data Pegawai", href: "#" },
       { name: "Tupoksi", href: "#" },
@@ -54,7 +54,11 @@ const NAV_MENU: NavItem[] = [
   {
     name: "PPID",
     children: [
-      { name: "Kontak, Struktur Organisasi, Visi Misi PPID Kecamatan Taman", href: "/category/ppid/kontak" },
+      // INI YANG DIPERBAIKI - langsung ke slug berita PPID yang sudah ada
+      { 
+        name: "Kontak, Struktur Organisasi, Visi Misi PPID Kecamatan Taman", 
+        href: "/berita/kontak-struktur-organisasi-visi-misi-ppid-kecamatan-taman" 
+      },
       { name: "TUGAS DAN FUNGSI PPID PELAKSANA KECAMATAN TAMAN", href: "#" },
       { name: "Informasi Secara Berkala", href: "#" },
       { name: "SK PPID", href: "#" },
@@ -88,7 +92,7 @@ const NAV_MENU: NavItem[] = [
   },
   { name: "FAQ", href: "/category/faq" },
   { name: "VISIT TAMAN", children: [] },
-  { name: "JALUR WISATA", href: "https://www.google.com/maps/d/u/0/viewer?ll=-7.642359646339356%2C111.52741&z=14&mid=1t8-sRMlLijK-tNVcdTStI8x_29FMDKQ"  },
+  { name: "JALUR WISATA", href: "https://www.google.com/maps/d/u/0/viewer?ll=-7.642359646339356%2C111.52741&z=14&mid=1t8-sRMlLijK-tNVcdTStI8x_29FMDKQ" },
 ];
 
 export default NAV_MENU;
