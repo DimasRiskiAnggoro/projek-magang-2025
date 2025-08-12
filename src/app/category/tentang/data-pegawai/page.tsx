@@ -1,15 +1,49 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, FileText, Download, Calendar, User, MessageCircle, Eye, Folder, FolderOpen, ChevronRight } from 'lucide-react';
+import { Users, FileText, Download, Calendar, User, MessageCircle, Eye, Folder, FolderOpen, ChevronRight, LucideIcon } from 'lucide-react';
 
-const DataPegawaiPage = () => {
-  const [activeFolder, setActiveFolder] = useState(null);
-  const [documents, setDocuments] = useState({});
+// Type definitions
+interface Document {
+  id: number;
+  title: string;
+  fileName: string;
+  fileSize: string;
+  uploadDate: string;
+  uploadBy: string;
+  comments: number;
+  category: string;
+  subcategory: string;
+  description: string;
+  pdfUrl: string;
+}
+
+interface DocumentsData {
+  [key: string]: Document[];
+}
+
+interface Folder {
+  id: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  color: 'blue' | 'green';
+}
+
+interface ColorClasses {
+  bg: string;
+  text: string;
+  hover: string;
+  border: string;
+}
+
+const DataPegawaiPage: React.FC = () => {
+  const [activeFolder, setActiveFolder] = useState<string | null>(null);
+  const [documents, setDocuments] = useState<DocumentsData>({});
 
   // Data dummy untuk simulasi
   useEffect(() => {
-    const dummyData = {
+    const dummyData: DocumentsData = {
       'data-pegawai': [
         {
           id: 1,
@@ -70,7 +104,7 @@ const DataPegawaiPage = () => {
     setDocuments(dummyData);
   }, []);
 
-  const folders = [
+  const folders: Folder[] = [
     {
       id: 'data-pegawai',
       title: 'Data Pegawai Kecamatan Taman',
@@ -87,7 +121,7 @@ const DataPegawaiPage = () => {
     }
   ];
 
-  const handleDownload = (doc) => {
+  const handleDownload = (doc: Document): void => {
     // Simulasi download
     const link = document.createElement('a');
     link.href = doc.pdfUrl;
@@ -97,7 +131,7 @@ const DataPegawaiPage = () => {
     document.body.removeChild(link);
   };
 
-  const handleViewPdf = (doc) => {
+  const handleViewPdf = (doc: Document): void => {
     if (doc && doc.pdfUrl) {
       window.open(doc.pdfUrl, '_blank');
     } else {
@@ -105,8 +139,8 @@ const DataPegawaiPage = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    const options = { 
+  const formatDate = (dateString: string): string => {
+    const options: Intl.DateTimeFormatOptions = { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
@@ -114,8 +148,8 @@ const DataPegawaiPage = () => {
     return new Date(dateString).toLocaleDateString('id-ID', options);
   };
 
-  const formatDateShort = (dateString) => {
-    const options = { 
+  const formatDateShort = (dateString: string): string => {
+    const options: Intl.DateTimeFormatOptions = { 
       year: 'numeric', 
       month: 'short', 
       day: 'numeric' 
@@ -123,8 +157,8 @@ const DataPegawaiPage = () => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  const getColorClasses = (color) => {
-    const colors = {
+  const getColorClasses = (color: 'blue' | 'green'): ColorClasses => {
+    const colors: Record<'blue' | 'green', ColorClasses> = {
       blue: {
         bg: 'bg-blue-100',
         text: 'text-blue-600',

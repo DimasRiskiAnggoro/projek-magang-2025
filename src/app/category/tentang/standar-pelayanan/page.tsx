@@ -3,12 +3,32 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Download, Calendar, User, Tag, Eye, X } from 'lucide-react';
 
-const StandarPelayananPage = () => {
-  const [document, setDocument] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showPdfViewer, setShowPdfViewer] = useState(false);
-  const [newDocument, setNewDocument] = useState({
+// Type definitions
+interface Document {
+  id: number;
+  title: string;
+  category: string;
+  fileName: string;
+  fileSize: string;
+  uploadDate: string;
+  uploadBy: string;
+  description: string;
+  pdfUrl: string;
+}
+
+interface NewDocument {
+  title: string;
+  category: string;
+  file: File | null;
+  description: string;
+}
+
+const StandarPelayananPage: React.FC = () => {
+  const [document, setDocument] = useState<Document | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
+  const [showPdfViewer, setShowPdfViewer] = useState<boolean>(false);
+  const [newDocument, setNewDocument] = useState<NewDocument>({
     title: '',
     category: '',
     file: null,
@@ -17,7 +37,7 @@ const StandarPelayananPage = () => {
 
   // Data dummy untuk simulasi
   useEffect(() => {
-    const dummyData = {
+    const dummyData: Document = {
       id: 1,
       title: "Standar Pelayanan Kecamatan Taman Tahun 2024",
       category: "Standar Pelayanan",
@@ -31,7 +51,7 @@ const StandarPelayananPage = () => {
     setDocument(dummyData);
   }, []);
 
-  const categories = [
+  const categories: string[] = [
     "Standar Pelayanan",
     "Administrasi Kependudukan",
     "Perizinan",
@@ -41,7 +61,7 @@ const StandarPelayananPage = () => {
     "Pemberdayaan"
   ];
 
-  const handleDownload = () => {
+  const handleDownload = (): void => {
     if (document) {
       // Simulasi download - implementasi nyata akan menggunakan URL file yang sebenarnya
       const link = document.createElement('a');
@@ -53,7 +73,7 @@ const StandarPelayananPage = () => {
     }
   };
 
-  const handleViewPdf = () => {
+  const handleViewPdf = (): void => {
     if (document && document.pdfUrl) {
       setShowPdfViewer(true);
     } else {
@@ -61,8 +81,8 @@ const StandarPelayananPage = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    const options = { 
+  const formatDate = (dateString: string): string => {
+    const options: Intl.DateTimeFormatOptions = { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 

@@ -3,14 +3,70 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Clock, MessageCircle, Building, Phone, Mail, Instagram, Facebook, MapPin, Globe } from 'lucide-react';
 
-const FAQPage = () => {
-  const [openItem, setOpenItem] = useState(null);
+// Type definitions
+interface ScheduleItem {
+  day: string;
+  time: string;
+}
 
-  const toggleItem = (index) => {
+interface ContactInfo {
+  phone: string;
+  email: string;
+  address: string;
+}
+
+interface ContactMethod {
+  icon: string;
+  label: string;
+  value: string;
+}
+
+interface RentalStep {
+  number: string;
+  title: string;
+  description: string;
+}
+
+interface ScheduleAnswer {
+  type: 'schedule';
+  content: {
+    title: string;
+    schedule: ScheduleItem[];
+    contact: ContactInfo;
+  };
+}
+
+interface ContactAnswer {
+  type: 'contact';
+  content: {
+    title: string;
+    methods: ContactMethod[];
+  };
+}
+
+interface RentalAnswer {
+  type: 'rental';
+  content: {
+    title: string;
+    steps: RentalStep[];
+  };
+}
+
+type Answer = ScheduleAnswer | ContactAnswer | RentalAnswer;
+
+interface FAQItem {
+  question: string;
+  answer: Answer;
+}
+
+const FAQPage: React.FC = () => {
+  const [openItem, setOpenItem] = useState<number | null>(null);
+
+  const toggleItem = (index: number): void => {
     setOpenItem(openItem === index ? null : index);
   };
 
-  const faqData = [
+  const faqData: FAQItem[] = [
     {
       question: "Jam berapakah pelayanan di kantor Kecamatan Taman?",
       answer: {
@@ -86,8 +142,8 @@ const FAQPage = () => {
     }
   ];
 
-  const renderIcon = (iconType) => {
-    const iconMap = {
+  const renderIcon = (iconType: string): JSX.Element => {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
       phone: Phone,
       email: Mail,
       instagram: Instagram,
@@ -100,7 +156,7 @@ const FAQPage = () => {
     return <Icon className="w-5 h-5" />;
   };
 
-  const renderAnswer = (answer) => {
+  const renderAnswer = (answer: Answer): JSX.Element | null => {
     if (answer.type === "schedule") {
       return (
         <div className="space-y-4">
