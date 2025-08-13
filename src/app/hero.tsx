@@ -6,20 +6,20 @@ function Hero() {
   // Array gambar untuk hero
   const heroImages = [
     {
-      id: 2,
-      src: "/image/image-2.png", 
-      alt: "Pemandangan Kota Madiun 2",
-      thumbnail: "/image/image-2.png"
+      id: 1,
+      src: "/image/hut80.jpg",
+      alt: "Pemandangan Kota Madiun 1",
+      thumbnail: "/image/hut80.jpg"
     },
     {
-      id: 4,
-      src: "/image/image-4.jpeg",
-      alt: "Pemandangan Kota Madiun 4",
+      id: 2,
+      src: "/image/image-4.jpeg", 
+      alt: "Pemandangan Kota Madiun 2",
       thumbnail: "/image/image-4.jpeg"
     }
   ];
 
-  // State untuk gambar yang sedang aktif
+
   const [activeImage, setActiveImage] = useState(heroImages[0]);
 
   // Auto-play carousel

@@ -120,7 +120,7 @@ export function Content() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Content */}
           <div className="flex-1 lg:w-2/3">
-            {/* Logo Section with animated background */}
+            {/* Logo Section - Static Logo */}
             <div 
               ref={el => elementsRef.current[0] = el}
               className={`flex justify-center mb-12 transition-all duration-1000 ease-out transform ${
@@ -128,12 +128,23 @@ export function Content() {
               }`}
             >
               <div className="relative">
-                {/* Logo dengan background SVG sebagai fallback */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-green-500 to-yellow-500 rounded-full animate-spin-slow p-1">
-                  <div className="bg-white rounded-full p-6">
-                    <div className="bg-gradient-to-br from-blue-100 to-green-100 rounded-full p-4 shadow-2xl flex items-center justify-center">
-                      {/* SVG Logo Kota Madiun sebagai fallback */}
-                      <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center animate-bounce-slow">
+                {/* Static Logo Container */}
+                <div className="bg-white rounded-full p-6 shadow-2xl">
+                  <div className="bg-gradient-to-br from-blue-100 to-green-100 rounded-full p-4 shadow-lg flex items-center justify-center">
+                    {/* Logo Image */}
+                    <div className="w-24 h-24 flex items-center justify-center">
+                      <img 
+                        src="icons/madiun.png" 
+                        alt="Logo Kota Madiun" 
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          // Fallback jika gambar tidak ditemukan
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'flex';
+                        }}
+                      />
+                      {/* Fallback SVG Logo jika gambar tidak tersedia */}
+                      <div className="w-24 h-24 bg-blue-600 rounded-full items-center justify-center hidden">
                         <svg width="60" height="60" viewBox="0 0 100 100" className="text-white">
                           <circle cx="50" cy="50" r="45" fill="currentColor" opacity="0.2"/>
                           <polygon points="50,10 70,35 85,35 60,55 70,80 50,65 30,80 40,55 15,35 30,35" fill="currentColor"/>
@@ -143,8 +154,8 @@ export function Content() {
                     </div>
                   </div>
                 </div>
-                {/* Glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-green-400 rounded-full blur-xl opacity-20 animate-pulse"></div>
+                {/* Subtle glow effect - static */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-green-400/20 rounded-full blur-xl opacity-30"></div>
               </div>
             </div>
 
@@ -196,12 +207,16 @@ export function Content() {
               }`}
             >
               <Typography className="my-10 font-normal !text-gray-500">
-                Kecamatan Taman memiliki berbagai fungsi strategis dalam mendukung pembangunan Kota Madiun. 
-                a. Pelayanan Administrasi Kependudukan: Memberikan layanan administrasi yang mudah, cepat, 
-                dan akurat untuk seluruh warga. b. Pemberdayaan Masyarakat: Mengelola program-program 
-                pemberdayaan ekonomi, sosial, dan budaya untuk meningkatkan kesejahteraan masyarakat. 
-                c. Koordinasi Pembangunan: Menjadi penghubung antara pemerintah kota dengan masyarakat dalam 
-                pelaksanaan program pembangunan daerah.
+                Kecamatan Taman memiliki berbagai fungsi strategis dalam mendukung pembangunan Kota Madiun:
+                <br /><br />
+                • <strong>Pelayanan Administrasi Kependudukan:</strong> Memberikan layanan administrasi yang mudah, cepat, 
+                dan akurat untuk seluruh warga.
+                <br /><br />
+                • <strong>Pemberdayaan Masyarakat:</strong> Mengelola program-program pemberdayaan ekonomi, sosial, 
+                dan budaya untuk meningkatkan kesejahteraan masyarakat.
+                <br /><br />
+                • <strong>Koordinasi Pembangunan:</strong> Menjadi penghubung antara pemerintah kota dengan masyarakat 
+                dalam pelaksanaan program pembangunan daerah.
               </Typography>
             </div>
 
@@ -586,15 +601,6 @@ export function Content() {
       </div>
 
       <style jsx>{`
-        @keyframes spin-slow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        
         @keyframes bounce-slow {
           0%, 100% {
             transform: translateY(0);
@@ -613,10 +619,6 @@ export function Content() {
             opacity: 1;
             transform: translateY(0);
           }
-        }
-        
-        .animate-spin-slow {
-          animation: spin-slow 8s linear infinite;
         }
         
         .animate-bounce-slow {
