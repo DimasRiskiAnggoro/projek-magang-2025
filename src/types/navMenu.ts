@@ -48,15 +48,15 @@ const NAV_MENU: NavItem[] = [
       { name: "Tupoksi", href: "/category/tentang/tupoksi" },
       { name: "SK", href: "/category/tentang/sk" },
       { name: "Struktur Organisasi", href: "/category/tentang/struktur-organisasi" },
-      { name: "Maklumat Pelayanan", href: "#" },
+      { name: "Maklumat Pelayanan", href: "/category/tentang/maklumat-pelayanan" },
     ],
   },
   {
     name: "PPID",
     children: [
       { name: "Kontak, Struktur Organisasi, Visi Misi PPID Kecamatan Taman", href: "/category/ppid/kontak" },
-      { name: "TUGAS DAN FUNGSI PPID PELAKSANA KECAMATAN TAMAN", href: "#" },
-      { name: "Informasi Secara Berkala", href: "#" },
+      { name: "TUGAS DAN FUNGSI PPID PELAKSANA KECAMATAN TAMAN", href: "/category/ppid/tugas-fungsi" },
+      { name: "Informasi Secara Berkala", href: "/category/ppid/informasi-berkala" },
       { name: "SK PPID", href: "#" },
       { name: "Informasi Setiap Saat", href: "#" },
       { name: "Informasi Serta Merta", href: "#" },
