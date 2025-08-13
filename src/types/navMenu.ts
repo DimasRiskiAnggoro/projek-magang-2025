@@ -9,7 +9,6 @@ export interface NavItem {
   children?: NavChild[];
 }
 
-// Data NAV_MENU - hanya mengubah href untuk PPID dengan slug yang tepat
 const NAV_MENU: NavItem[] = [
   { name: "Home", href: "/" },
   { name: "Berita", href: "/berita" },
@@ -54,7 +53,6 @@ const NAV_MENU: NavItem[] = [
   {
     name: "PPID",
     children: [
-      // INI YANG DIPERBAIKI - langsung ke slug berita PPID yang sudah ada
       { 
         name: "Kontak, Struktur Organisasi, Visi Misi PPID Kecamatan Taman", 
         href: "/berita/kontak-struktur-organisasi-visi-misi-ppid-kecamatan-taman" 
