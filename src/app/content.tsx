@@ -11,6 +11,7 @@ interface NewsItem {
   date: string
   views: number
   category: string
+  image: string
 }
 
 const categories = [
@@ -49,6 +50,30 @@ const quickLinks = [
     url: "#",
     color: "bg-orange-500 hover:bg-orange-600",
   },
+  {
+    title: "Portal Open Data",
+    description: "Data Terbuka Kecamatan Taman Kota Madiun",
+    url: "#",
+    color: "bg-teal-500 hover:bg-teal-600",
+  },
+  {
+    title: "siRUP",
+    description: "Sistem Informasi Rencana Umum Pengadaan",
+    url: "#",
+    color: "bg-indigo-500 hover:bg-indigo-600",
+  },
+  {
+    title: "LPSE",
+    description: "Layanan Pengadaan Secara Elektronik",
+    url: "#",
+    color: "bg-red-500 hover:bg-red-600",
+  },
+  {
+    title: "Daftar Kategori",
+    description: "Kategori Layanan Kecamatan Taman",
+    url: "#",
+    color: "bg-yellow-500 hover:bg-yellow-600",
+  },
 ]
 
 const popularNews: NewsItem[] = [
@@ -60,6 +85,7 @@ const popularNews: NewsItem[] = [
     date: "2024-01-15",
     views: 1250,
     category: "Infrastruktur",
+    image: "/city-road-construction.png",
   },
   {
     id: 2,
@@ -69,6 +95,7 @@ const popularNews: NewsItem[] = [
     date: "2024-01-12",
     views: 980,
     category: "Pelayanan",
+    image: "/digitalisasi-pelayanan-publik-komputer.png",
   },
   {
     id: 3,
@@ -78,6 +105,7 @@ const popularNews: NewsItem[] = [
     date: "2024-01-10",
     views: 1450,
     category: "Budaya",
+    image: "/indonesian-cultural-festival.png",
   },
   {
     id: 4,
@@ -87,6 +115,7 @@ const popularNews: NewsItem[] = [
     date: "2024-01-08",
     views: 750,
     category: "Kesehatan",
+    image: "/public-health-talk.png",
   },
 ]
 
@@ -199,7 +228,7 @@ export default function Content() {
         {/* Quick Links Section */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-white">
-            Layanan Digital Kota Madiun
+            Layanan Digital Kecamatan Taman Kota Madiun
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {quickLinks.map((link, index) => (
@@ -229,31 +258,32 @@ export default function Content() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-3xl font-bold text-center text-gray-800 dark:text-white">
-                Tentang Kecamatan Kota Madiun
+                Tentang Kecamatan Taman Kota Madiun
               </h2>
             </div>
             <div className="p-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 <div className="space-y-6">
                   <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
-                    Kecamatan Kota Madiun merupakan salah satu kecamatan yang berada di wilayah Kota Madiun, Jawa Timur.
+                    Kecamatan Taman merupakan salah satu kecamatan yang berada di wilayah Kota Madiun, Jawa Timur.
                     Sebagai pusat pemerintahan dan bisnis, kecamatan ini memiliki peran strategis dalam pengembangan
-                    ekonomi dan sosial masyarakat Kota Madiun.
+                    ekonomi dan sosial masyarakat Kota Madiun dengan fokus pada pelayanan digital dan transparansi data.
                   </p>
 
                   <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
-                    Dengan luas wilayah yang mencakup beberapa kelurahan, Kecamatan Kota Madiun terus berkomitmen untuk
+                    Dengan luas wilayah yang mencakup beberapa kelurahan, Kecamatan Taman terus berkomitmen untuk
                     memberikan pelayanan terbaik kepada masyarakat melalui berbagai program pembangunan infrastruktur,
-                    peningkatan kualitas pendidikan, kesehatan, dan pemberdayaan ekonomi masyarakat.
+                    peningkatan kualitas pendidikan, kesehatan, dan pemberdayaan ekonomi masyarakat dengan dukungan
+                    teknologi informasi terkini.
                   </p>
 
                   <div className="grid grid-cols-2 gap-4 mt-6">
                     <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <h4 className="font-bold text-2xl text-blue-600 dark:text-blue-400">12</h4>
+                      <h4 className="font-bold text-2xl text-blue-600 dark:text-blue-400">8</h4>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Kelurahan</p>
                     </div>
                     <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <h4 className="font-bold text-2xl text-green-600 dark:text-green-400">85,000+</h4>
+                      <h4 className="font-bold text-2xl text-green-600 dark:text-green-400">65,000+</h4>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Penduduk</p>
                     </div>
                   </div>
@@ -263,13 +293,13 @@ export default function Content() {
                   <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden shadow-lg">
                     <img
                       src="/kantor-kecamatan-madiun-modern.png"
-                      alt="Kantor Kecamatan Kota Madiun"
+                      alt="Kantor Kecamatan Taman Kota Madiun"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
                   <div className="absolute bottom-4 left-4 text-white">
-                    <p className="text-sm font-medium">Kantor Kecamatan Kota Madiun</p>
+                    <p className="text-sm font-medium">Kantor Kecamatan Taman Kota Madiun</p>
                   </div>
                 </div>
               </div>
@@ -284,8 +314,15 @@ export default function Content() {
             {filteredNews.map((news) => (
               <div
                 key={news.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden"
               >
+                <div className="aspect-video bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                  <img
+                    src={news.image || "/placeholder.svg"}
+                    alt={news.title}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
                 <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-start mb-2">
                     <span className="inline-block px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full mb-2">

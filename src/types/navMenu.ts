@@ -57,12 +57,12 @@ const NAV_MENU: NavItem[] = [
       { name: "Kontak, Struktur Organisasi, Visi Misi PPID Kecamatan Taman", href: "/category/ppid/kontak" },
       { name: "TUGAS DAN FUNGSI PPID PELAKSANA KECAMATAN TAMAN", href: "/category/ppid/tugas-fungsi" },
       { name: "Informasi Secara Berkala", href: "/category/ppid/informasi-berkala" },
-      { name: "SK PPID", href: "#" },
-      { name: "Informasi Setiap Saat", href: "#" },
-      { name: "Informasi Serta Merta", href: "#" },
-      { name: "Informasi Dikecualikan", href: "#" },
-      { name: "Laporan PPID", href: "#" },
-      { name: "Daftar Informasi Publik Kecamatan Taman", href: "#" },
+      { name: "SK PPID", href: "/category/ppid/sk-ppid" },
+      { name: "Informasi Setiap Saat", href: "/category/ppid/informasi-setiap-saat" },
+      { name: "Informasi Serta Merta", href: "/category/ppid/informasi-serta-merta" },
+      { name: "Informasi Dikecualikan", href: "/category/ppid/informasi-dikecualikan" },
+      { name: "Laporan PPID", href: "/category/ppid/laporan-ppid" },
+      { name: "Daftar Informasi Publik Kecamatan Taman", href: "/category/ppid/daftar-informasi-publik" },
     ],
   },
   {
@@ -87,7 +87,7 @@ const NAV_MENU: NavItem[] = [
     ],
   },
   { name: "FAQ", href: "/category/faq" },
-  { name: "VISIT TAMAN", children: [] },
+  { name: "VISIT TAMAN", href: "/category/visit-taman" },
   { name: "JALUR WISATA", href: "https://www.google.com/maps/d/u/0/viewer?ll=-7.642359646339356%2C111.52741&z=14&mid=1t8-sRMlLijK-tNVcdTStI8x_29FMDKQ"  },
 ];
 
