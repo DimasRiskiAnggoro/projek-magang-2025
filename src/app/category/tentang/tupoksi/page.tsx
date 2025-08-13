@@ -1,15 +1,39 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, Calendar, User, MessageCircle, Tag, Eye, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  FileText,
+  Download,
+  Calendar,
+  User,
+  MessageCircle,
+  Tag,
+  Eye,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
 
-const TupoksiPage = () => {
-  const [tupoksiData, setTupoksiData] = useState(null);
-  const [showFullContent, setShowFullContent] = useState(false);
+interface TupoksiData {
+  id: number;
+  title: string;
+  uploadDate: string;
+  uploadBy: string;
+  comments: number;
+  category: string;
+  subcategory: string;
+  fileName: string;
+  fileSize: string;
+  pdfUrl: string;
+  excerpt: string;
+  fullContent: string;
+}
 
-  // Data dummy untuk simulasi
+const TupoksiPage: React.FC = () => {
+  const [tupoksiData, setTupoksiData] = useState<TupoksiData | null>(null);
+  const [showFullContent, setShowFullContent] = useState<boolean>(false);
+
   useEffect(() => {
-    const dummyData = {
+    const dummyData: TupoksiData = {
       id: 1,
       title: "Tupoksi Kecamatan Taman Kota Madiun",
       uploadDate: "2024-08-05",
@@ -20,16 +44,15 @@ const TupoksiPage = () => {
       fileName: "tupoksi_kecamatan_taman_2024.pdf",
       fileSize: "2.4 MB",
       pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-      excerpt: "Dokumen Tupoksi (Tugas Pokok dan Fungsi) Kecamatan Taman Kota Madiun yang berisi tugas pokok, fungsi, dan uraian tugas dari setiap unit organisasi di lingkungan Kecamatan Taman.",
+      excerpt:
+        "Dokumen Tupoksi (Tugas Pokok dan Fungsi) Kecamatan Taman Kota Madiun yang berisi tugas pokok, fungsi, dan uraian tugas dari setiap unit organisasi di lingkungan Kecamatan Taman.",
       fullContent: `
         <div class="space-y-6">
           <h3 class="text-xl font-semibold text-gray-800">Tugas Pokok dan Fungsi Kecamatan Taman</h3>
-          
           <div class="bg-blue-50 p-4 rounded-lg">
             <h4 class="font-semibold text-blue-800 mb-2">TUGAS POKOK</h4>
             <p class="text-gray-700">Kecamatan Taman mempunyai tugas melaksanakan kewenangan pemerintahan yang dilimpahkan oleh Walikota untuk menangani sebagian urusan otonomi daerah.</p>
           </div>
-
           <div class="space-y-4">
             <h4 class="font-semibold text-gray-800">FUNGSI KECAMATAN TAMAN:</h4>
             <ol class="list-decimal list-inside space-y-2 text-gray-700">
@@ -41,12 +64,10 @@ const TupoksiPage = () => {
               <li>Pelaksanaan tugas lain yang diberikan oleh Walikota sesuai dengan tugas dan fungsinya</li>
             </ol>
           </div>
-
           <div class="bg-green-50 p-4 rounded-lg">
             <h4 class="font-semibold text-green-800 mb-2">STRUKTUR ORGANISASI</h4>
             <p class="text-gray-700">Kecamatan Taman terdiri dari beberapa seksi yang menjalankan fungsi spesifik dalam pelayanan kepada masyarakat, meliputi Seksi Pemerintahan, Seksi Pemberdayaan Masyarakat, dan Seksi Pelayanan Umum.</p>
           </div>
-
           <div class="space-y-3">
             <h4 class="font-semibold text-gray-800">URAIAN TUGAS POKOK:</h4>
             <div class="space-y-3">
@@ -70,7 +91,7 @@ const TupoksiPage = () => {
     setTupoksiData(dummyData);
   }, []);
 
-  const handleDownload = () => {
+  const handleDownload = (): void => {
     if (tupoksiData) {
       const link = document.createElement('a');
       link.href = tupoksiData.pdfUrl;
@@ -81,21 +102,17 @@ const TupoksiPage = () => {
     }
   };
 
-  const handleViewPdf = () => {
-    if (tupoksiData && tupoksiData.pdfUrl) {
+  const handleViewPdf = (): void => {
+    if (tupoksiData?.pdfUrl) {
       window.open(tupoksiData.pdfUrl, '_blank');
     } else {
       alert('File PDF tidak tersedia');
     }
   };
 
-  const formatDateShort = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    };
-    return new Date(dateString).toLocaleDateString('en-US', options);
+  const formatDateShort = (dateString: string): string => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('id-ID', options);
   };
 
   if (!tupoksiData) {
@@ -193,7 +210,6 @@ const TupoksiPage = () => {
 
           {/* Article Content */}
           <div className="p-8">
-            {/* Excerpt */}
             <div className="prose prose-gray max-w-none mb-6">
               <p className="text-lg text-gray-700 leading-relaxed">
                 {tupoksiData.excerpt}
@@ -216,10 +232,9 @@ const TupoksiPage = () => {
                 )}
               </button>
 
-              {/* Full Content */}
               {showFullContent && (
                 <div className="animate-fadeIn">
-                  <div 
+                  <div
                     className="prose prose-gray max-w-none"
                     dangerouslySetInnerHTML={{ __html: tupoksiData.fullContent }}
                   />
@@ -246,21 +261,6 @@ const TupoksiPage = () => {
             </div>
           </div>
         </article>
-
-        {/* Related Information */}
-        <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Informasi Terkait</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <h4 className="font-medium text-blue-800 mb-2">Struktur Organisasi</h4>
-              <p className="text-sm text-gray-600">Lihat struktur organisasi lengkap Kecamatan Taman</p>
-            </div>
-            <div className="p-4 bg-green-50 rounded-lg">
-              <h4 className="font-medium text-green-800 mb-2">Data Pegawai</h4>
-              <p className="text-sm text-gray-600">Informasi data pegawai dan pejabat struktural</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <style jsx>{`

@@ -207,16 +207,12 @@ export function Content() {
               }`}
             >
               <Typography className="my-10 font-normal !text-gray-500">
-                Kecamatan Taman memiliki berbagai fungsi strategis dalam mendukung pembangunan Kota Madiun:
-                <br /><br />
-                • <strong>Pelayanan Administrasi Kependudukan:</strong> Memberikan layanan administrasi yang mudah, cepat, 
-                dan akurat untuk seluruh warga.
-                <br /><br />
-                • <strong>Pemberdayaan Masyarakat:</strong> Mengelola program-program pemberdayaan ekonomi, sosial, 
-                dan budaya untuk meningkatkan kesejahteraan masyarakat.
-                <br /><br />
-                • <strong>Koordinasi Pembangunan:</strong> Menjadi penghubung antara pemerintah kota dengan masyarakat 
-                dalam pelaksanaan program pembangunan daerah.
+                Kecamatan Taman memiliki berbagai fungsi strategis dalam mendukung pembangunan Kota Madiun. 
+                a. Pelayanan Administrasi Kependudukan: Memberikan layanan administrasi yang mudah, cepat, 
+                dan akurat untuk seluruh warga. b. Pemberdayaan Masyarakat: Mengelola program-program 
+                pemberdayaan ekonomi, sosial, dan budaya untuk meningkatkan kesejahteraan masyarakat. 
+                c. Koordinasi Pembangunan: Menjadi penghubung antara pemerintah kota dengan masyarakat dalam 
+                pelaksanaan program pembangunan daerah.
               </Typography>
             </div>
 
