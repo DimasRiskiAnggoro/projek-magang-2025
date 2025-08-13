@@ -9,7 +9,6 @@ export interface NavItem {
   children?: NavChild[];
 }
 
-// 2. Data NAV_MENU yang sudah sesuai interface
 const NAV_MENU: NavItem[] = [
   { name: "Home", href: "/" },
   { name: "Berita", href: "/berita" },
@@ -41,28 +40,29 @@ const NAV_MENU: NavItem[] = [
     name: "Tentang",
     children: [
       { name: "Profil OPD", href: "/category/tentang/profil-opd" },
-      { name: "Profil Camat Taman Kota Madiun", href: "category/tentang/profil-camat" },
-      { name: "Visi Dan Misi", href: "category/tentang/visi-misi" },
+      { name: "Profil Camat Taman Kota Madiun", href: "/berita/profil-camat-taman-kota-madiun" },
+      { name: "Visi Dan Misi", href: "/berita/visi-dan-misi-kecamatan-taman-kota-madiun" },
       { name: "STANDAR PELAYANAN KECAMATAN TAMAN TAHUN 2024 (6 Komponen)", href: "/category/tentang/standar-pelayanan" },
       { name: "Data Pegawai", href: "/category/tentang/data-pegawai" },
       { name: "Tupoksi", href: "/category/tentang/tupoksi" },
-      { name: "SK", href: "/category/tentang/sk" },
-      { name: "Struktur Organisasi", href: "/category/tentang/struktur-organisasi" },
-      { name: "Maklumat Pelayanan", href: "/category/tentang/maklumat-pelayanan" },
+      { name: "SK", href: "#" },
+      { name: "Struktur Organisasi", href: "/berita/struktur-organisasi-kecamatan-taman" },
+      { name: "Maklumat Pelayanan", href: "#" },
     ],
   },
   {
     name: "PPID",
     children: [
-      { name: "Kontak, Struktur Organisasi, Visi Misi PPID Kecamatan Taman", href: "/category/ppid/kontak" },
+      { name: "Kontak, Struktur Organisasi, Visi Misi PPID Kecamatan Taman", href: "/berita/kontak-struktur-organisasi-visi-misi-ppid-kecamatan-taman" 
+ },
       { name: "TUGAS DAN FUNGSI PPID PELAKSANA KECAMATAN TAMAN", href: "/category/ppid/tugas-fungsi" },
       { name: "Informasi Secara Berkala", href: "/category/ppid/informasi-berkala" },
-      { name: "SK PPID", href: "/category/ppid/sk-ppid" },
-      { name: "Informasi Setiap Saat", href: "/category/ppid/informasi-setiap-saat" },
-      { name: "Informasi Serta Merta", href: "/category/ppid/informasi-serta-merta" },
-      { name: "Informasi Dikecualikan", href: "/category/ppid/informasi-dikecualikan" },
-      { name: "Laporan PPID", href: "/category/ppid/laporan-ppid" },
-      { name: "Daftar Informasi Publik Kecamatan Taman", href: "/category/ppid/daftar-informasi-publik" },
+      { name: "SK PPID", href: "#" },
+      { name: "Informasi Setiap Saat", href: "#" },
+      { name: "Informasi Serta Merta", href: "#" },
+      { name: "Informasi Dikecualikan", href: "#" },
+      { name: "Laporan PPID", href: "#" },
+      { name: "Daftar Informasi Publik Kecamatan Taman", href: "#" },
     ],
   },
   {
@@ -87,7 +87,7 @@ const NAV_MENU: NavItem[] = [
     ],
   },
   { name: "FAQ", href: "/category/faq" },
-  { name: "VISIT TAMAN", href: "/category/visit-taman" },
+  { name: "VISIT TAMAN", href : "/visit-taman"},
   { name: "JALUR WISATA", href: "https://www.google.com/maps/d/u/0/viewer?ll=-7.642359646339356%2C111.52741&z=14&mid=1t8-sRMlLijK-tNVcdTStI8x_29FMDKQ"  },
 ];
 

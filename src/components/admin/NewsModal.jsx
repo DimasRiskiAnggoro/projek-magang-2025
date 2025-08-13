@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Cookies from 'js-cookie';
-import { X, Plus, Trash2, Image, FileText, Upload, Star, StarOff, MoveUp, MoveDown, Edit3, Hash } from 'lucide-react';
+// MODIFIKASI: Menambahkan ikon Link dan Eye untuk UI mode tampilan
+import { X, Plus, Trash2, Image, FileText, Upload, Star, StarOff, MoveUp, MoveDown, Edit3, Hash, Link, Eye } from 'lucide-react';
 
 export default function NewsModal({ news, onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -20,7 +21,7 @@ export default function NewsModal({ news, onClose, onSave }) {
   ]);
   
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [thumbnailImageId, setThumbnailImageId] = useState(null); // BARU: simpan ID gambar thumbnail
+  const [thumbnailImageId, setThumbnailImageId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [allCategories, setAllCategories] = useState([]);
@@ -63,7 +64,6 @@ export default function NewsModal({ news, onClose, onSave }) {
         setSelectedCategories(news.categories.map(cat => cat.id));
       }
 
-      // BARU: Set thumbnail image ID dari database
       setThumbnailImageId(news.thumbnail_image_id);
       
       const blocks = [];
@@ -79,7 +79,7 @@ export default function NewsModal({ news, onClose, onSave }) {
             caption: image.caption || '', 
             order: image.urutan,
             existingId: image.id,
-            existingImageId: image.id // BARU: tambah tracking untuk ID gambar database
+            existingImageId: image.id
           });
         });
       }
@@ -106,7 +106,9 @@ export default function NewsModal({ news, onClose, onSave }) {
             title: pdf.title || 'Dokumen PDF', 
             description: pdf.description || '', 
             order: pdf.urutan,
-            existingId: pdf.id
+            existingId: pdf.id,
+            // MODIFIKASI: Baca display_mode dari data server, default ke 'link' jika tidak ada
+            display_mode: pdf.display_mode || 'link'
           });
         });
       }
@@ -145,7 +147,13 @@ export default function NewsModal({ news, onClose, onSave }) {
 
     if (type === 'paragraph' || type === 'heading') { newBlock.content = ''; } 
     else if (type === 'image') { newBlock.file = null; newBlock.caption = ''; } 
-    else if (type === 'pdf') { newBlock.file = null; newBlock.title = ''; newBlock.description = ''; }
+    else if (type === 'pdf') { 
+      newBlock.file = null; 
+      newBlock.title = ''; 
+      newBlock.description = ''; 
+      // MODIFIKASI: Set display_mode default untuk blok PDF baru
+      newBlock.display_mode = 'link'; 
+    }
 
     setContentBlocks(prev => [...prev, newBlock]);
     setNextBlockId(prev => prev + 1);
@@ -158,8 +166,6 @@ export default function NewsModal({ news, onClose, onSave }) {
     if (blockToRemove) {
       if (blockToRemove.type === 'image' && blockToRemove.existingImage) {
         setImagesToDelete(prev => [...prev, blockToRemove.existingImage.id]);
-        
-        // BARU: Reset thumbnail jika gambar yang dihapus adalah thumbnail
         if (thumbnailImageId === blockToRemove.existingImage.id) {
           setThumbnailImageId(null);
         }
@@ -195,8 +201,6 @@ export default function NewsModal({ news, onClose, onSave }) {
       order: idx + 1
     }));
     
-    console.log('Updated block orders:', finalBlocks.map(b => ({ id: b.id, type: b.type, order: b.order, existingId: b.existingId })));
-    
     setContentBlocks(finalBlocks);
   };
 
@@ -204,40 +208,24 @@ export default function NewsModal({ news, onClose, onSave }) {
     updateBlock(blockId, { file: file });
   };
 
-  // BARU: Fungsi set thumbnail yang lebih robust
   const setThumbnail = (blockId) => {
     const block = contentBlocks.find(b => b.id === blockId);
     if (block && block.type === 'image') {
-      // Jika ini adalah gambar existing dari database
       if (block.existingImageId) {
         setThumbnailImageId(block.existingImageId);
-        console.log('Set thumbnail to existing image ID:', block.existingImageId);
       } else if (block.file) {
-        // Jika ini adalah gambar baru yang belum diupload, tandai untuk dijadikan thumbnail nanti
         setThumbnailImageId(`new_${blockId}`);
-        console.log('Set thumbnail to new image block:', blockId);
       }
     }
   };
 
-  // BARU: Fungsi untuk mengecek apakah suatu block adalah thumbnail
   const isThumbnailBlock = (block) => {
     if (block.type !== 'image') return false;
-    
-    // Untuk gambar existing
-    if (block.existingImageId && thumbnailImageId === block.existingImageId) {
-      return true;
-    }
-    
-    // Untuk gambar baru
-    if (block.file && thumbnailImageId === `new_${block.id}`) {
-      return true;
-    }
-    
+    if (block.existingImageId && thumbnailImageId === block.existingImageId) { return true; }
+    if (block.file && thumbnailImageId === `new_${block.id}`) { return true; }
     return false;
   };
 
-  // Buat data urutan blok untuk backend
   const createBlockOrdersData = () => {
     return contentBlocks.map(block => ({
       id: block.existingId || null,
@@ -267,14 +255,9 @@ export default function NewsModal({ news, onClose, onSave }) {
       submissionData.append('category_ids[]', categoryId);
     });
 
-    if (isEditing) {
-      submissionData.append('_method', 'PUT');
-    }
     
-    // Kirim data urutan blok
+    
     const blockOrders = createBlockOrdersData();
-    console.log('Sending block orders:', blockOrders);
-    
     blockOrders.forEach((blockOrder, index) => {
       if (blockOrder.id) {
         submissionData.append(`block_orders[${index}][id]`, blockOrder.id);
@@ -286,9 +269,10 @@ export default function NewsModal({ news, onClose, onSave }) {
     const newContents = [];
     const newImages = [];
     const newImageCaptions = [];
-    const newPdfsData = { files: [], titles: [], descriptions: [] };
+    // MODIFIKASI: Menambahkan display_modes ke data PDF baru
+    const newPdfsData = { files: [], titles: [], descriptions: [], displayModes: [] };
     const localImagesToDelete = [...imagesToDelete];
-    let newThumbnailImageId = null; // BARU: untuk tracking thumbnail gambar baru
+    let newThumbnailImageId = null; 
 
     contentBlocks.forEach(block => {
       switch (block.type) {
@@ -309,12 +293,9 @@ export default function NewsModal({ news, onClose, onSave }) {
           if (block.file) { 
             newImages.push(block.file);
             newImageCaptions.push(block.caption || '');
-            
-            // BARU: Jika ini adalah thumbnail yang baru
             if (thumbnailImageId === `new_${block.id}`) {
-              newThumbnailImageId = newImages.length - 1; // Index dalam array newImages
+              newThumbnailImageId = newImages.length - 1;
             }
-            
             if (isEditing && block.existingImage) {
               localImagesToDelete.push(block.existingImage.id);
             }
@@ -326,10 +307,15 @@ export default function NewsModal({ news, onClose, onSave }) {
             newPdfsData.files.push(block.file);
             newPdfsData.titles.push(block.title || '');
             newPdfsData.descriptions.push(block.description || '');
+            // MODIFIKASI: Menambahkan display_mode untuk file baru
+            newPdfsData.displayModes.push(block.display_mode || 'link');
             if (isEditing && block.existingPdf) {
               pdfsToDelete.push(block.existingPdf.id);
             }
-          }
+          } 
+          // CATATAN: Untuk meng-update display_mode PDF yang sudah ada (existing),
+          // Anda perlu menambahkan logika di sini untuk mengirim data update ke backend.
+          // Misalnya, membuat array 'updated_pdfs' dan mengirimnya.
           break;
       }
     });
@@ -346,28 +332,22 @@ export default function NewsModal({ news, onClose, onSave }) {
       submissionData.append('image_captions[]', newImageCaptions[index]);
     });
     
+    // MODIFIKASI: Mengirim data pdf_display_modes[] ke backend
     newPdfsData.files.forEach((file, index) => {
       submissionData.append('pdfs[]', file);
       submissionData.append('pdf_titles[]', newPdfsData.titles[index]);
       submissionData.append('pdf_descriptions[]', newPdfsData.descriptions[index]);
+      submissionData.append('pdf_display_modes[]', newPdfsData.displayModes[index]);
     });
 
     [...new Set(localImagesToDelete)].forEach(id => submissionData.append('delete_images[]', id));
     [...new Set(pdfsToDelete)].forEach(id => submissionData.append('delete_pdfs[]', id));
     [...new Set(contentsToDelete)].forEach(id => submissionData.append('delete_contents[]', id));
 
-    // BARU: Kirim data thumbnail
     if (thumbnailImageId && typeof thumbnailImageId === 'number') {
-      // Thumbnail adalah gambar existing
       submissionData.append('thumbnail_image_id', thumbnailImageId);
     }
-    // Untuk gambar baru yang dijadikan thumbnail, akan dihandle di backend
-
-    console.log('FormData contents:');
-    for (let [key, value] of submissionData.entries()) {
-      console.log(key, value);
-    }
-
+    
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -385,9 +365,7 @@ export default function NewsModal({ news, onClose, onSave }) {
       }
       
       const responseData = await response.json();
-      console.log('Server response:', responseData);
       
-      // BARU: Jika ada gambar baru yang dijadikan thumbnail, update via API terpisah
       if (newThumbnailImageId !== null && responseData.images && responseData.images.length > 0) {
         const newImageId = responseData.images[newThumbnailImageId]?.id;
         if (newImageId) {
@@ -500,7 +478,6 @@ export default function NewsModal({ news, onClose, onSave }) {
                         {block.existingId && <span className="text-xs bg-gray-200 px-1 rounded">DB:{block.existingId}</span>}
                       </div>
                       <div className="flex items-center gap-1">
-                        {/* BARU: Tombol thumbnail yang sudah diperbaiki */}
                         {block.type === 'image' && (
                           <button 
                             type="button" 
@@ -567,7 +544,39 @@ export default function NewsModal({ news, onClose, onSave }) {
                         ) : (<div className="mb-3 border-2 border-dashed border-gray-300 dark:border-slate-500 rounded-lg p-6 text-center"><FileText size={32} className="mx-auto mb-2 text-gray-400" /><p className="text-sm text-gray-500">Belum ada PDF dipilih</p></div>)}
                         <input type="file" accept=".pdf" onChange={(e) => handleBlockFileUpload(block.id, e.target.files[0])} className={`${inputClass} mb-2`} />
                         <input type="text" value={block.title || ''} onChange={(e) => updateBlock(block.id, { title: e.target.value })} className={`${inputClass} mb-2`} placeholder="Judul dokumen PDF" />
-                        <textarea value={block.description || ''} onChange={(e) => updateBlock(block.id, { description: e.target.value })} className={inputClass} rows="2" placeholder="Deskripsi dokumen PDF (opsional)" />
+                        <textarea value={block.description || ''} onChange={(e) => updateBlock(block.id, { description: e.target.value })} className={`${inputClass} mb-2`} rows="2" placeholder="Deskripsi dokumen PDF (opsional)" />
+
+                        {/* MODIFIKASI: Menambahkan UI untuk memilih mode tampilan PDF */}
+                        <div className="mt-2">
+                          <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Mode Tampilan</label>
+                          <div className="flex items-center gap-2">
+                              <button
+                                  type="button"
+                                  onClick={() => updateBlock(block.id, { display_mode: 'link' })}
+                                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${
+                                      block.display_mode === 'link' 
+                                          ? 'bg-blue-600 text-white' 
+                                          : 'bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+                                  }`}
+                              >
+                                  <Link size={14} />
+                                  Link
+                              </button>
+                              <button
+                                  type="button"
+                                  onClick={() => updateBlock(block.id, { display_mode: 'embed' })}
+                                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${
+                                      block.display_mode === 'embed' 
+                                          ? 'bg-blue-600 text-white' 
+                                          : 'bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+                                  }`}
+                              >
+                                  <Eye size={14} />
+                                  Embed
+                              </button>
+                          </div>
+                        </div>
+
                       </div>
                     )}
                   </div>
