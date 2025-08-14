@@ -45,9 +45,9 @@ const NAV_MENU: NavItem[] = [
       { name: "STANDAR PELAYANAN KECAMATAN TAMAN TAHUN 2024 (6 Komponen)", href: "/category/tentang/standar-pelayanan" },
       { name: "Data Pegawai", href: "/category/tentang/data-pegawai" },
       { name: "Tupoksi", href: "/category/tentang/tupoksi" },
-      { name: "SK", href: "#" },
+      { name: "SK", href: "category/tentang/sk" },
       { name: "Struktur Organisasi", href: "/berita/struktur-organisasi-kecamatan-taman" },
-      { name: "Maklumat Pelayanan", href: "#" },
+      { name: "Maklumat Pelayanan", href: "" },
     ],
   },
   {

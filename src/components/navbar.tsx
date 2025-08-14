@@ -122,13 +122,14 @@ export const Navbar: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-sm">
-                T
-              </div>
-              <span className="ml-2 text-lg font-semibold text-gray-900">Taman</span>
-            </div>
-
+ <div className="flex items-center">
+  <img
+    src="/icons/madiun.png"
+    alt="Logo Taman"
+    className="w-8 h-8 rounded object-cover"
+  />
+  <span className="ml-2 text-lg font-semibold text-gray-900">Taman</span>
+</div>
             {/* Search Bar */}
             <div className="flex-1 max-w-xl mx-8">
               <div className="relative">

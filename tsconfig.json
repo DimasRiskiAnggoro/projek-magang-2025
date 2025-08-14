@@ -38,7 +38,7 @@
     ".next/types/**/*.ts",
     "src/components/simple-blog-card.tsx", 
     "src/components/navbar.tsx", 
-    "src/app/ayodulursection.tsx"
+   
   ],
   "exclude": [
     "node_modules"
