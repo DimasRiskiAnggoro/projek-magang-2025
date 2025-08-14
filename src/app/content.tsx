@@ -279,7 +279,7 @@ export default function Content() {
         <div className="mb-16">
           <div className="p-8">
             <div className="text-center mb-8">
-              <h2 className="text-4xl font-bold text-black dark:text-white">Tentang Kecamatan Taman Kota Madiun</h2>
+              <h2 className="text-4xl font-bold text-black dark:text-white">Kecamatan Taman Kota Madiun</h2>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               {/* Content Column */}
