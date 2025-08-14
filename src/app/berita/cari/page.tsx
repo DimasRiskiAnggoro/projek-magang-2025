@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 
 // Komponen TechBackground yang disederhanakan
 const TechBackground: React.FC = () => {
@@ -32,7 +32,7 @@ const TechBackground: React.FC = () => {
         />
       ))}
       
-      <div className="absolute inset-0 bg-gradient-to-br from-teal-600/20 via-transparent to-blue-600/20" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20" />
     </div>
   )
 }
@@ -53,7 +53,7 @@ interface TechHeaderProps {
 // Komponen TechHeader yang disederhanakan
 const TechHeader: React.FC<TechHeaderProps> = ({ title, breadcrumbItems = [], description }) => {
   return (
-    <div className="relative bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700 pt-20 pb-16 min-h-[400px] flex items-center">
+    <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-purple-700 pt-20 pb-16 min-h-[400px] flex items-center">
       <TechBackground />
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
@@ -130,12 +130,6 @@ type NewsItem = {
   thumbnail_image_id?: number
 }
 
-type Category = {
-  id: number
-  name: string
-  description?: string
-}
-
 // Format tanggal Indonesia
 const formatTanggal = (tanggal: string): string => {
   if (!tanggal) return ""
@@ -168,13 +162,32 @@ const getThumbnailImage = (newsItem: NewsItem): string => {
   return "/image/thumbnail.png"
 }
 
+// Fungsi untuk highlight text yang cocok dengan pencarian
+const highlightSearchTerm = (text: string, searchTerm: string): React.ReactNode => {
+  if (!searchTerm.trim()) return text;
+  
+  const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+  
+  return parts.map((part, index) => 
+    regex.test(part) ? (
+      <mark key={index} className="bg-yellow-200 text-gray-900 px-1 rounded">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+};
+
 // Props untuk NewsCard
 interface NewsCardProps {
   news: NewsItem
+  searchTerm?: string
 }
 
 // Komponen NewsCard yang disederhanakan
-const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
+const NewsCard: React.FC<NewsCardProps> = ({ news, searchTerm = "" }) => {
   const router = useRouter()
 
   const handleCategoryClick = (e: React.MouseEvent, categoryId: number): void => {
@@ -224,7 +237,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
                 onClick={(e) => handleCategoryClick(e, cat.id)}
                 className="px-3 py-1.5 text-xs font-bold border-2 border-blue-200 text-blue-700 hover:border-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300 transform hover:scale-110"
               >
-                {cat.name}
+                {highlightSearchTerm(cat.name, searchTerm)}
               </button>
             ))}
           </div>
@@ -232,12 +245,12 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
 
         <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight group-hover:text-blue-700 transition-colors duration-300">
           <Link href={`/berita/${news.slug}`} className="hover:text-blue-700 transition-colors duration-300">
-            {news.title}
+            {highlightSearchTerm(news.title, searchTerm)}
           </Link>
         </h3>
 
         <p className="text-gray-600 text-sm line-clamp-3 mb-6 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
-          {getDescription()}
+          {highlightSearchTerm(getDescription(), searchTerm)}
         </p>
 
         <div className="flex flex-col gap-3 text-xs text-gray-500 mb-6 group-hover:text-gray-600 transition-colors duration-300">
@@ -278,21 +291,21 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   )
 }
 
-const CategoryPage: React.FC = () => {
-  const params = useParams()
+const SearchResultsPage: React.FC = () => {
+  const searchParams = useSearchParams()
   const router = useRouter()
-  const categoryId = params.categoryId as string
+  const query = searchParams.get('q') || ''
 
-  const [category, setCategory] = useState<Category | null>(null)
   const [news, setNews] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState<number>(1)
   const [hasMore, setHasMore] = useState<boolean>(true)
+  const [totalResults, setTotalResults] = useState<number>(0)
   const itemsPerPage = 12
 
-  const fetchCategoryAndNews = async (pageNum: number = 1, append: boolean = false): Promise<void> => {
-    if (!categoryId) return
+  const fetchSearchResults = async (pageNum: number = 1, append: boolean = false): Promise<void> => {
+    if (!query.trim()) return
 
     if (!append) {
       setLoading(true)
@@ -300,65 +313,90 @@ const CategoryPage: React.FC = () => {
     }
 
     try {
-      const newsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/news`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/news`, {
         headers: { Accept: "application/json" },
       })
 
-      if (!newsResponse.ok) throw new Error("Gagal mengambil data berita")
+      if (!response.ok) throw new Error("Gagal mengambil data berita")
 
-      const allNews: NewsItem[] = await newsResponse.json()
-      const filteredNews = allNews.filter(
-        (newsItem) =>
-          newsItem.status === "published" && 
-          newsItem.categories.some((cat) => cat.id === parseInt(categoryId))
-      )
+      const allNews: NewsItem[] = await response.json()
+      
+      // Filter berita berdasarkan pencarian
+      const filteredNews = allNews.filter((newsItem) => {
+        if (newsItem.status !== "published") return false;
+        
+        const searchTerm = query.toLowerCase();
+        const titleMatch = newsItem.title.toLowerCase().includes(searchTerm);
+        const excerptMatch = newsItem.excerpt?.toLowerCase().includes(searchTerm);
+        const categoryMatch = newsItem.categories.some(cat => 
+          cat.name.toLowerCase().includes(searchTerm)
+        );
+        const contentMatch = newsItem.contents?.some(content => 
+          content.content.toLowerCase().includes(searchTerm)
+        );
+        
+        return titleMatch || excerptMatch || categoryMatch || contentMatch;
+      });
 
-      const sortedNews = filteredNews.sort(
-        (a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
-      )
+      // Sort by relevance and date
+      const sortedNews = filteredNews.sort((a, b) => {
+        const searchTerm = query.toLowerCase();
+        
+        // Prioritize title matches
+        const aTitleMatch = a.title.toLowerCase().includes(searchTerm) ? 1 : 0;
+        const bTitleMatch = b.title.toLowerCase().includes(searchTerm) ? 1 : 0;
+        
+        if (aTitleMatch !== bTitleMatch) {
+          return bTitleMatch - aTitleMatch;
+        }
+        
+        // Then sort by date
+        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+      });
 
-      const startIndex = (pageNum - 1) * itemsPerPage
-      const endIndex = startIndex + itemsPerPage
-      const paginatedNews = sortedNews.slice(0, endIndex)
+      setTotalResults(sortedNews.length);
 
-      if (sortedNews.length > 0) {
-        const categoryData = sortedNews[0].categories.find(
-          (cat) => cat.id === parseInt(categoryId)
-        )
-        if (categoryData) setCategory(categoryData)
-      }
+      const startIndex = (pageNum - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const paginatedNews = sortedNews.slice(0, endIndex);
 
       if (append) {
-        setNews((prev) => [...prev, ...paginatedNews.slice(startIndex)])
+        setNews((prev) => [...prev, ...paginatedNews.slice(startIndex)]);
       } else {
-        setNews(paginatedNews)
+        setNews(paginatedNews);
       }
 
-      setHasMore(endIndex < sortedNews.length)
+      setHasMore(endIndex < sortedNews.length);
     } catch (error) {
-      console.error("Error fetching category and news:", error)
-      const errorMessage = error instanceof Error ? error.message : "Terjadi kesalahan"
-      setError(errorMessage)
+      console.error("Error fetching search results:", error);
+      const errorMessage = error instanceof Error ? error.message : "Terjadi kesalahan";
+      setError(errorMessage);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchCategoryAndNews(1, false)
-  }, [categoryId])
+    if (query) {
+      fetchSearchResults(1, false)
+    } else {
+      setLoading(false)
+      setNews([])
+      setTotalResults(0)
+    }
+  }, [query])
 
   const loadMore = (): void => {
     const nextPage = page + 1
     setPage(nextPage)
-    fetchCategoryAndNews(nextPage, true)
+    fetchSearchResults(nextPage, true)
   }
 
   const getBreadcrumbItems = (): BreadcrumbItem[] => {
     return [
       { label: "Home", href: "/" },
       { label: "Berita", href: "/berita" },
-      { label: category?.name || "Kategori" }
+      { label: `Pencarian: "${query}"` }
     ]
   }
 
@@ -367,9 +405,9 @@ const CategoryPage: React.FC = () => {
     return (
       <main className="min-h-screen bg-gray-50">
         <TechHeader
-          title="Memuat Kategori..."
+          title="Mencari Berita..."
           breadcrumbItems={getBreadcrumbItems()}
-          description="Memuat berita kategori..."
+          description={`Mencari berita dengan kata kunci "${query}"`}
         />
         
         <div className="px-4 sm:px-6 lg:px-8 py-16">
@@ -399,7 +437,7 @@ const CategoryPage: React.FC = () => {
         <div className="relative bg-gradient-to-br from-red-500 via-red-600 to-red-700 pt-20 pb-16 min-h-[400px] flex items-center">
           <TechBackground />
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl font-bold text-white mb-4">Kategori Tidak Ditemukan</h1>
+            <h1 className="text-4xl font-bold text-white mb-4">Terjadi Kesalahan</h1>
             <p className="text-xl text-white/90 mb-6">{error}</p>
             <button
               onClick={() => router.push("/berita")}
@@ -413,28 +451,71 @@ const CategoryPage: React.FC = () => {
     )
   }
 
-  // No news found
-  if (!loading && news.length === 0) {
+  // No query
+  if (!query.trim()) {
     return (
       <main className="min-h-screen bg-gray-50">
         <TechHeader
-          title={`Kategori: ${category?.name || "Kategori"}`}
-          breadcrumbItems={getBreadcrumbItems()}
-          description="Belum ada berita untuk kategori ini"
+          title="Pencarian Berita"
+          breadcrumbItems={[
+            { label: "Home", href: "/" },
+            { label: "Berita", href: "/berita" },
+            { label: "Pencarian" }
+          ]}
+          description="Masukkan kata kunci untuk mencari berita"
         />
         
         <div className="px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-7xl mx-auto text-center py-20">
             <h2 className="text-2xl font-bold text-gray-800 mb-3">
-              Belum Ada Berita untuk Kategori {category?.name || "Ini"}
+              Silakan Masukkan Kata Kunci Pencarian
             </h2>
-            <p className="text-gray-600 mb-8">Silakan periksa kategori lain atau kembali nanti.</p>
+            <p className="text-gray-600 mb-8">Gunakan kotak pencarian untuk mencari berita yang Anda inginkan.</p>
             <button
               onClick={() => router.push("/berita")}
               className="px-8 py-4 bg-blue-500 text-white font-bold border-2 border-blue-600 hover:bg-blue-600 transition-all duration-300"
             >
-              Kembali ke Daftar Berita
+              Lihat Semua Berita
             </button>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
+  // No results found
+  if (!loading && news.length === 0) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <TechHeader
+          title={`Pencarian: "${query}"`}
+          breadcrumbItems={getBreadcrumbItems()}
+          description="Tidak ada hasil yang ditemukan"
+        />
+        
+        <div className="px-4 sm:px-6 lg:px-8 py-16">
+          <div className="max-w-7xl mx-auto text-center py-20">
+            <div className="text-6xl mb-6">🔍</div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">
+              Tidak Ada Hasil untuk "{query}"
+            </h2>
+            <p className="text-gray-600 mb-8">
+              Coba gunakan kata kunci yang berbeda atau periksa ejaan kata kunci Anda.
+            </p>
+            <div className="space-x-4">
+              <button
+                onClick={() => router.push("/berita")}
+                className="px-8 py-4 bg-blue-500 text-white font-bold border-2 border-blue-600 hover:bg-blue-600 transition-all duration-300"
+              >
+                Lihat Semua Berita
+              </button>
+              <button
+                onClick={() => window.history.back()}
+                className="px-8 py-4 bg-gray-500 text-white font-bold border-2 border-gray-600 hover:bg-gray-600 transition-all duration-300"
+              >
+                Kembali
+              </button>
+            </div>
           </div>
         </div>
       </main>
@@ -444,31 +525,36 @@ const CategoryPage: React.FC = () => {
   return (
     <main className="min-h-screen bg-gray-50">
       <TechHeader
-        title={`Kategori: ${category?.name || "Kategori"}`}
+        title={`Pencarian: "${query}"`}
         breadcrumbItems={getBreadcrumbItems()}
-        description={`Berita terkini untuk kategori ${category?.name || "ini"}`}
+        description={`Ditemukan ${totalResults} berita yang sesuai dengan pencarian Anda`}
       />
 
       <div className="px-4 sm:px-6 lg:px-8 py-16">
         <div className="max-w-7xl mx-auto">
-          {/* Back Button */}
-          <button 
-            onClick={() => router.push("/berita")}
-            className="inline-flex items-center gap-2 px-6 py-3 mb-8 bg-white text-teal-600 font-bold border-2 border-teal-200 hover:border-teal-500 hover:bg-teal-500 hover:text-white transition-all duration-300"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Kembali ke Daftar Berita
-          </button>
-
-
+          {/* Back Button dan Info Hasil */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+            <button 
+              onClick={() => router.push("/berita")}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-bold border-2 border-blue-200 hover:border-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Kembali ke Daftar Berita
+            </button>
+            
+            <div className="text-sm text-gray-600 bg-white px-4 py-2 rounded-lg border-2 border-gray-200">
+              Menampilkan {news.length} dari {totalResults} hasil untuk 
+              <span className="font-bold text-blue-600 ml-1">"{query}"</span>
+            </div>
+          </div>
 
           {/* Grid Berita */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {news.map((newsItem, index) => (
-              <div key={newsItem.id} className="animate-fadeInUp" style={{ animationDelay: `${index * 150}ms` }}>
-                <NewsCard news={newsItem} />
+              <div key={newsItem.id} className="animate-fadeInUp" style={{ animationDelay: `${index * 100}ms` }}>
+                <NewsCard news={newsItem} searchTerm={query} />
               </div>
             ))}
           </div>
@@ -481,12 +567,10 @@ const CategoryPage: React.FC = () => {
                 disabled={loading}
                 className="px-10 py-4 bg-blue-500 text-white font-bold border-2 border-blue-600 hover:bg-blue-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Memuat Berita..." : "Muat Lebih Banyak Berita"}
+                {loading ? "Memuat Lebih Banyak..." : `Muat Lebih Banyak (${totalResults - news.length} tersisa)`}
               </button>
             </div>
           )}
-
-
         </div>
       </div>
       
@@ -524,4 +608,4 @@ const CategoryPage: React.FC = () => {
   )
 }
 
-export default CategoryPage
+export default SearchResultsPage

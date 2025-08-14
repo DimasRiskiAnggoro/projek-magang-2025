@@ -21,6 +21,13 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'deepmerge$': require.resolve('deepmerge-ts')
+    };
+    return config;
+  }
 };
 
 module.exports = nextConfig;
