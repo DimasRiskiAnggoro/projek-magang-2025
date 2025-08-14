@@ -1,8 +1,6 @@
 "use client"
-
-import type React from "react"
-import { useState, useRef } from "react"
-import { Search, Calendar, Eye, ChevronDown, Play, ChevronLeft, ChevronRight, User } from "lucide-react"
+import { useRef, useEffect, useState } from "react"
+import { Calendar, Eye, Play, ChevronLeft, ChevronRight, User } from "lucide-react"
 
 interface NewsItem {
   id: number
@@ -14,17 +12,6 @@ interface NewsItem {
   image: string
   author: string
 }
-
-const categories = [
-  "Semua Kategori",
-  "Infrastruktur",
-  "Pelayanan",
-  "Budaya",
-  "Kesehatan",
-  "Pendidikan",
-  "Ekonomi",
-  "Sosial",
-]
 
 const quickLinks = [
   {
@@ -159,60 +146,29 @@ const serviceInfo = [
 ]
 
 export default function Content() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filteredNews, setFilteredNews] = useState(popularNews)
-  const [selectedCategory, setSelectedCategory] = useState("Semua Kategori")
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const carouselRef = useRef<HTMLDivElement>(null)
   const serviceCarouselRef = useRef<HTMLDivElement>(null)
+  const [currentSlide, setCurrentSlide] = useState(0)
 
-  const handleSearch = () => {
-    let filtered = popularNews
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (carouselRef.current) {
+        const scrollAmount = 1 // Smooth pixel-by-pixel scrolling
+        const maxScroll = carouselRef.current.scrollWidth / 2 // Half because we duplicate items
+        const currentScroll = carouselRef.current.scrollLeft
 
-    // Filter by search term
-    if (searchTerm.trim() !== "") {
-      filtered = filtered.filter(
-        (news) =>
-          news.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          news.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          news.category.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-    }
+        if (currentScroll >= maxScroll) {
+          // Seamlessly reset to beginning
+          carouselRef.current.scrollLeft = 0
+        } else {
+          // Smooth continuous scroll
+          carouselRef.current.scrollLeft += scrollAmount
+        }
+      }
+    }, 20) // Very frequent updates for smooth animation
 
-    if (selectedCategory !== "Semua Kategori") {
-      filtered = filtered.filter((news) => news.category === selectedCategory)
-    }
-
-    setFilteredNews(filtered)
-  }
-
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category)
-    setIsDropdownOpen(false)
-    let filtered = popularNews
-
-    // Filter by search term
-    if (searchTerm.trim() !== "") {
-      filtered = filtered.filter(
-        (news) =>
-          news.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          news.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          news.category.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-    }
-
-    if (category !== "Semua Kategori") {
-      filtered = filtered.filter((news) => news.category === category)
-    }
-
-    setFilteredNews(filtered)
-  }
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch()
-    }
-  }
+    return () => clearInterval(interval)
+  }, [])
 
   const scrollCarousel = (direction: "left" | "right") => {
     if (carouselRef.current) {
@@ -242,122 +198,84 @@ export default function Content() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        {/* Search Section - Made more organic */}
-        <div className="mb-12">
-          <div className="bg-white/90 backdrop-blur-sm dark:bg-gray-800/90 rounded-3xl shadow-xl border border-gray-200/50 dark:border-gray-700/50">
-            <div className="p-8">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    placeholder="Cari berita, informasi, atau layanan..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    className="w-full text-lg h-14 px-6 border border-gray-200 dark:border-gray-600 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div className="w-full md:w-48 relative">
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-full h-14 px-6 border border-gray-200 dark:border-gray-600 rounded-2xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between"
-                  >
-                    <span>{selectedCategory}</span>
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                  {isDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-2xl shadow-xl z-10 overflow-hidden">
-                      {categories.map((category) => (
-                        <button
-                          key={category}
-                          onClick={() => handleCategoryChange(category)}
-                          className="w-full px-6 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-white transition-colors"
-                        >
-                          {category}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={handleSearch}
-                  className="h-14 px-8 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-2xl font-medium flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  <Search className="w-5 h-5 mr-2" />
-                  Cari
-                </button>
-              </div>
-            </div>
-          </div>
+      <div
+        className="mb-16 w-full relative overflow-hidden border-t-4 border-white"
+        style={{ backgroundColor: "#68b3e3" }}
+      >
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {/* Floating circles */}
+          <div
+            className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-bounce"
+            style={{ animationDelay: "0s", animationDuration: "3s" }}
+          ></div>
+          <div
+            className="absolute top-32 right-20 w-16 h-16 bg-white/15 rounded-full animate-pulse"
+            style={{ animationDelay: "1s", animationDuration: "4s" }}
+          ></div>
+          <div
+            className="absolute bottom-20 left-1/4 w-12 h-12 bg-white/20 rounded-full animate-bounce"
+            style={{ animationDelay: "2s", animationDuration: "5s" }}
+          ></div>
+          <div
+            className="absolute top-1/2 right-1/3 w-8 h-8 bg-white/25 rounded-full animate-pulse"
+            style={{ animationDelay: "0.5s", animationDuration: "3.5s" }}
+          ></div>
+
+          {/* Floating geometric shapes */}
+          <div
+            className="absolute top-16 right-10 w-6 h-6 bg-white/20 rotate-45 animate-spin"
+            style={{ animationDuration: "8s" }}
+          ></div>
+          <div
+            className="absolute bottom-32 right-1/4 w-4 h-4 bg-white/30 rotate-45 animate-spin"
+            style={{ animationDuration: "6s", animationDirection: "reverse" }}
+          ></div>
+
+          {/* Moving gradient overlay */}
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"
+            style={{ animationDuration: "4s" }}
+          ></div>
+
+          {/* Subtle wave effect */}
+          <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-white/10 via-white/20 to-white/10 animate-pulse"></div>
         </div>
 
-        <div className="mb-16">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold mb-4 text-black dark:text-white">Layanan Digital Kecamatan Taman</h2>
-            <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-              Akses mudah ke berbagai layanan digital untuk kemudahan masyarakat Kota Madiun
-            </p>
-          </div>
-
-          <div className="relative">
-            {/* Navigation buttons */}
-            <button
-              onClick={() => scrollCarousel("left")}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110 border border-gray-200 dark:border-gray-600"
-            >
-              <ChevronLeft className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-blue-600" />
-            </button>
-
-            <button
-              onClick={() => scrollCarousel("right")}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110 border border-gray-200 dark:border-gray-600"
-            >
-              <ChevronRight className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-blue-600" />
-            </button>
-
-            <div
-              ref={carouselRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide px-12 py-4"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              {quickLinks.map((link, index) => (
+        <div className="relative py-8 z-10">
+          <div
+            ref={carouselRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide py-4 px-4"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {[...quickLinks, ...quickLinks].map((link, index) => (
+              <div
+                key={index}
+                className="group relative rounded-2xl hover:shadow-none transition-all duration-500 transform hover:-translate-y-1 hover:rotate-1 p-4 flex-shrink-0 w-48"
+                style={{ backgroundColor: "transparent" }}
+              >
                 <div
-                  key={index}
-                  className="group relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:rotate-1 p-6 flex-shrink-0 w-80 border border-gray-200 dark:border-gray-700"
-                >
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${link.color} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`}
-                  ></div>
-                  <div className="relative z-10">
-                    <div className="flex items-center mb-4">
-                      <div
-                        className={`w-16 h-16 bg-gradient-to-br ${link.color} rounded-2xl flex items-center justify-center mr-4 shadow-lg`}
-                      >
-                        <img
-                          src={link.logo || "/placeholder.svg"}
-                          alt={`${link.title} logo`}
-                          className="w-10 h-10 object-contain"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-lg text-gray-800 dark:text-white">{link.title}</h3>
-                      </div>
+                  className="absolute inset-0 opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-500"
+                  style={{ backgroundColor: "#68b3e3" }}
+                ></div>
+                <div className="relative z-10 text-center">
+                  <div className="flex justify-center mb-3">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center">
+                      <img
+                        src={link.logo || "/placeholder.svg"}
+                        alt={`${link.title} logo`}
+                        className="w-24 h-24 object-contain"
+                      />
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">{link.description}</p>
-                    <button className="w-full py-3 px-4 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 hover:from-blue-500 hover:to-blue-600 hover:text-white rounded-xl transition-all duration-300 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
-                        Akses Layanan
-                      </a>
-                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* About Kecamatan Section - Removed all box styling */}
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-16">
           <div className="p-8">
             <div className="text-center mb-8">
@@ -432,7 +350,6 @@ export default function Content() {
           </div>
         </div>
 
-        {/* Explore Kota Madiun Section */}
         <div className="mb-16">
           <div className="relative overflow-hidden rounded-xl">
             <div className="absolute inset-0 bg-gradient-to-r from-teal-600 via-teal-700 to-teal-800"></div>
@@ -481,7 +398,6 @@ export default function Content() {
           </div>
         </div>
 
-        {/* Popular News Section - Made smaller and more compact */}
         <div className="mb-12">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-3 text-black dark:text-white">Berita Terpopuler</h2>
@@ -491,7 +407,7 @@ export default function Content() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-            {filteredNews.slice(0, 6).map((news, index) => (
+            {popularNews.slice(0, 6).map((news, index) => (
               <div
                 key={news.id}
                 className={`group bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 ${
@@ -561,68 +477,47 @@ export default function Content() {
               Temukan lebih banyak berita dan informasi terkini dari Kecamatan Taman Kota Madiun
             </p>
           </div>
-
-          {filteredNews.length === 0 && (
-            <div className="text-center py-12">
-              <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md mx-auto border border-gray-200 dark:border-gray-700">
-                <p className="text-gray-700 dark:text-gray-300">
-                  Tidak ada berita yang ditemukan untuk pencarian "{searchTerm}"
-                  {selectedCategory !== "Semua Kategori" && ` dalam kategori "${selectedCategory}"`}
-                </p>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Informasi Pelayanan Section - Changed to horizontal carousel */}
         <div className="mb-16">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-3 text-gray-800 dark:text-white">Informasi Pelayanan</h2>
-            <p className="text-base text-gray-700 dark:text-gray-300">
-              Informasi lengkap mengenai pelayanan dan standar kinerja Kecamatan Taman
-            </p>
-          </div>
+          {/* Navigation buttons */}
+          <button
+            onClick={() => scrollServiceCarousel("left")}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110 border border-gray-200 dark:border-gray-600"
+          >
+            <ChevronLeft className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-blue-600" />
+          </button>
 
-          <div className="relative">
-            {/* Navigation buttons */}
-            <button
-              onClick={() => scrollServiceCarousel("left")}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110 border border-gray-200 dark:border-gray-600"
-            >
-              <ChevronLeft className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-blue-600" />
-            </button>
+          <button
+            onClick={() => scrollServiceCarousel("right")}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110 border border-gray-200 dark:border-gray-600"
+          >
+            <ChevronRight className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-blue-600" />
+          </button>
 
-            <button
-              onClick={() => scrollServiceCarousel("right")}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110 border border-gray-200 dark:border-gray-600"
-            >
-              <ChevronRight className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-blue-600" />
-            </button>
-
-            <div
-              ref={serviceCarouselRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide px-12 py-4"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              {serviceInfo.map((info) => (
-                <div
-                  key={info.id}
-                  className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-700 overflow-hidden flex-shrink-0 w-80"
-                >
-                  <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-700 overflow-hidden relative">
-                    <img
-                      src={info.image || "/placeholder.svg"}
-                      alt={info.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <h3 className="text-white font-bold text-lg leading-tight drop-shadow-lg">{info.title}</h3>
-                    </div>
+          <div
+            ref={serviceCarouselRef}
+            className="flex gap-6 overflow-x-auto scrollbar-hide px-12 py-4"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {serviceInfo.map((info) => (
+              <div
+                key={info.id}
+                className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-700 overflow-hidden flex-shrink-0 w-80"
+              >
+                <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-700 overflow-hidden relative">
+                  <img
+                    src={info.image || "/placeholder.svg"}
+                    alt={info.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="text-white font-bold text-lg leading-tight drop-shadow-lg">{info.title}</h3>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
