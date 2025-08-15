@@ -8,17 +8,17 @@ import { useSearchParams, useRouter } from "next/navigation"
 const TechBackground: React.FC = () => {
   return (
     <div className="absolute inset-0 overflow-hidden">
-      <div 
+      <div
         className="absolute inset-0 opacity-20"
         style={{
           backgroundImage: `
             linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
           `,
-          backgroundSize: '50px 50px'
+          backgroundSize: "50px 50px",
         }}
       />
-      
+
       {Array.from({ length: 15 }).map((_, i) => (
         <div
           key={i}
@@ -27,11 +27,11 @@ const TechBackground: React.FC = () => {
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
             animationDelay: `${Math.random() * 3}s`,
-            animationDuration: `${2 + Math.random() * 3}s`
+            animationDuration: `${2 + Math.random() * 3}s`,
           }}
         />
       ))}
-      
+
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20" />
     </div>
   )
@@ -55,7 +55,7 @@ const TechHeader: React.FC<TechHeaderProps> = ({ title, breadcrumbItems = [], de
   return (
     <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-purple-700 pt-20 pb-16 min-h-[400px] flex items-center">
       <TechBackground />
-      
+
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         {breadcrumbItems.length > 0 && (
           <nav className="mb-8">
@@ -71,9 +71,7 @@ const TechHeader: React.FC<TechHeaderProps> = ({ title, breadcrumbItems = [], de
                       {item.label}
                     </span>
                   )}
-                  {index < breadcrumbItems.length - 1 && (
-                    <span className="text-white/60">|</span>
-                  )}
+                  {index < breadcrumbItems.length - 1 && <span className="text-white/60">|</span>}
                 </React.Fragment>
               ))}
             </div>
@@ -81,15 +79,9 @@ const TechHeader: React.FC<TechHeaderProps> = ({ title, breadcrumbItems = [], de
         )}
 
         <div className="max-w-4xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-            {title}
-          </h1>
-          
-          {description && (
-            <p className="text-xl text-white/90 max-w-3xl mb-6 leading-relaxed">
-              {description}
-            </p>
-          )}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">{title}</h1>
+
+          {description && <p className="text-xl text-white/90 max-w-3xl mb-6 leading-relaxed">{description}</p>}
         </div>
       </div>
 
@@ -164,21 +156,21 @@ const getThumbnailImage = (newsItem: NewsItem): string => {
 
 // Fungsi untuk highlight text yang cocok dengan pencarian
 const highlightSearchTerm = (text: string, searchTerm: string): React.ReactNode => {
-  if (!searchTerm.trim()) return text;
-  
-  const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-  const parts = text.split(regex);
-  
-  return parts.map((part, index) => 
+  if (!searchTerm.trim()) return text
+
+  const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi")
+  const parts = text.split(regex)
+
+  return parts.map((part, index) =>
     regex.test(part) ? (
       <mark key={index} className="bg-yellow-200 text-gray-900 px-1 rounded">
         {part}
       </mark>
     ) : (
       part
-    )
-  );
-};
+    ),
+  )
+}
 
 // Props untuk NewsCard
 interface NewsCardProps {
@@ -215,8 +207,8 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, searchTerm = "" }) => {
 
   return (
     <article className="group bg-white border-2 border-gray-200 overflow-hidden transition-all duration-500 transform hover:scale-105 hover:border-blue-500 hover:bg-blue-50">
-      <div 
-        className="relative h-64 overflow-hidden cursor-pointer bg-gray-100" 
+      <div
+        className="relative h-64 overflow-hidden cursor-pointer bg-gray-100"
         onClick={() => router.push(`/berita/${news.slug}`)}
       >
         <img
@@ -256,23 +248,41 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, searchTerm = "" }) => {
         <div className="flex flex-col gap-3 text-xs text-gray-500 mb-6 group-hover:text-gray-600 transition-colors duration-300">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-gray-100 group-hover:bg-blue-100 transition-colors duration-300">
-              <svg className="w-3 h-3 text-gray-600 group-hover:text-blue-600 transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="w-3 h-3 text-gray-600 group-hover:text-blue-600 transition-colors duration-300"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
               </svg>
             </div>
             <span>
-              Diposting oleh <span className="font-bold text-gray-700 group-hover:text-blue-700 transition-colors duration-300">{news.author || "Admin"}</span>
+              Diposting oleh{" "}
+              <span className="font-bold text-gray-700 group-hover:text-blue-700 transition-colors duration-300">
+                {news.author || "Admin"}
+              </span>
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-gray-100 group-hover:bg-blue-100 transition-colors duration-300">
-              <svg className="w-3 h-3 text-gray-600 group-hover:text-blue-600 transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+              <svg
+                className="w-3 h-3 text-gray-600 group-hover:text-blue-600 transition-colors duration-300"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
             <span>
-              pada <span className="font-bold text-gray-700 group-hover:text-blue-700 transition-colors duration-300">{formatTanggal(news.published_at)}</span>
+              pada{" "}
+              <span className="font-bold text-gray-700 group-hover:text-blue-700 transition-colors duration-300">
+                {formatTanggal(news.published_at)}
+              </span>
             </span>
           </div>
         </div>
@@ -282,7 +292,13 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, searchTerm = "" }) => {
           className="inline-flex items-center justify-center gap-2 w-full px-6 py-3 text-sm font-bold text-gray-700 border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300 transform hover:scale-105 group/button"
         >
           Baca Selengkapnya
-          <svg className="w-4 h-4 transition-transform duration-300 group-hover/button:translate-x-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg
+            className="w-4 h-4 transition-transform duration-300 group-hover/button:translate-x-1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </Link>
@@ -294,7 +310,7 @@ const NewsCard: React.FC<NewsCardProps> = ({ news, searchTerm = "" }) => {
 const SearchResultsPage: React.FC = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const query = searchParams.get('q') || ''
+  const query = searchParams.get("q") || ""
 
   const [news, setNews] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState<boolean>(true)
@@ -304,7 +320,7 @@ const SearchResultsPage: React.FC = () => {
   const [totalResults, setTotalResults] = useState<number>(0)
   const itemsPerPage = 12
 
-  const fetchSearchResults = async (pageNum: number = 1, append: boolean = false): Promise<void> => {
+  const fetchSearchResults = async (pageNum = 1, append = false): Promise<void> => {
     if (!query.trim()) return
 
     if (!append) {
@@ -320,59 +336,55 @@ const SearchResultsPage: React.FC = () => {
       if (!response.ok) throw new Error("Gagal mengambil data berita")
 
       const allNews: NewsItem[] = await response.json()
-      
+
       // Filter berita berdasarkan pencarian
       const filteredNews = allNews.filter((newsItem) => {
-        if (newsItem.status !== "published") return false;
-        
-        const searchTerm = query.toLowerCase();
-        const titleMatch = newsItem.title.toLowerCase().includes(searchTerm);
-        const excerptMatch = newsItem.excerpt?.toLowerCase().includes(searchTerm);
-        const categoryMatch = newsItem.categories.some(cat => 
-          cat.name.toLowerCase().includes(searchTerm)
-        );
-        const contentMatch = newsItem.contents?.some(content => 
-          content.content.toLowerCase().includes(searchTerm)
-        );
-        
-        return titleMatch || excerptMatch || categoryMatch || contentMatch;
-      });
+        if (newsItem.status !== "published") return false
+
+        const searchTerm = query.toLowerCase()
+        const titleMatch = newsItem.title.toLowerCase().includes(searchTerm)
+        const excerptMatch = newsItem.excerpt?.toLowerCase().includes(searchTerm)
+        const categoryMatch = newsItem.categories.some((cat) => cat.name.toLowerCase().includes(searchTerm))
+        const contentMatch = newsItem.contents?.some((content) => content.content.toLowerCase().includes(searchTerm))
+
+        return titleMatch || excerptMatch || categoryMatch || contentMatch
+      })
 
       // Sort by relevance and date
       const sortedNews = filteredNews.sort((a, b) => {
-        const searchTerm = query.toLowerCase();
-        
+        const searchTerm = query.toLowerCase()
+
         // Prioritize title matches
-        const aTitleMatch = a.title.toLowerCase().includes(searchTerm) ? 1 : 0;
-        const bTitleMatch = b.title.toLowerCase().includes(searchTerm) ? 1 : 0;
-        
+        const aTitleMatch = a.title.toLowerCase().includes(searchTerm) ? 1 : 0
+        const bTitleMatch = b.title.toLowerCase().includes(searchTerm) ? 1 : 0
+
         if (aTitleMatch !== bTitleMatch) {
-          return bTitleMatch - aTitleMatch;
+          return bTitleMatch - aTitleMatch
         }
-        
+
         // Then sort by date
-        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
-      });
+        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
+      })
 
-      setTotalResults(sortedNews.length);
+      setTotalResults(sortedNews.length)
 
-      const startIndex = (pageNum - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const paginatedNews = sortedNews.slice(0, endIndex);
+      const startIndex = (pageNum - 1) * itemsPerPage
+      const endIndex = startIndex + itemsPerPage
+      const paginatedNews = sortedNews.slice(0, endIndex)
 
       if (append) {
-        setNews((prev) => [...prev, ...paginatedNews.slice(startIndex)]);
+        setNews((prev) => [...prev, ...paginatedNews.slice(startIndex)])
       } else {
-        setNews(paginatedNews);
+        setNews(paginatedNews)
       }
 
-      setHasMore(endIndex < sortedNews.length);
+      setHasMore(endIndex < sortedNews.length)
     } catch (error) {
-      console.error("Error fetching search results:", error);
-      const errorMessage = error instanceof Error ? error.message : "Terjadi kesalahan";
-      setError(errorMessage);
+      console.error("Error fetching search results:", error)
+      const errorMessage = error instanceof Error ? error.message : "Terjadi kesalahan"
+      setError(errorMessage)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -393,11 +405,7 @@ const SearchResultsPage: React.FC = () => {
   }
 
   const getBreadcrumbItems = (): BreadcrumbItem[] => {
-    return [
-      { label: "Home", href: "/" },
-      { label: "Berita", href: "/berita" },
-      { label: `Pencarian: "${query}"` }
-    ]
+    return [{ label: "Home", href: "/" }, { label: "Berita", href: "/berita" }, { label: `Pencarian: "${query}"` }]
   }
 
   // Loading state
@@ -409,7 +417,7 @@ const SearchResultsPage: React.FC = () => {
           breadcrumbItems={getBreadcrumbItems()}
           description={`Mencari berita dengan kata kunci "${query}"`}
         />
-        
+
         <div className="px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -457,19 +465,13 @@ const SearchResultsPage: React.FC = () => {
       <main className="min-h-screen bg-gray-50">
         <TechHeader
           title="Pencarian Berita"
-          breadcrumbItems={[
-            { label: "Home", href: "/" },
-            { label: "Berita", href: "/berita" },
-            { label: "Pencarian" }
-          ]}
+          breadcrumbItems={[{ label: "Home", href: "/" }, { label: "Berita", href: "/berita" }, { label: "Pencarian" }]}
           description="Masukkan kata kunci untuk mencari berita"
         />
-        
+
         <div className="px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-7xl mx-auto text-center py-20">
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">
-              Silakan Masukkan Kata Kunci Pencarian
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">Silakan Masukkan Kata Kunci Pencarian</h2>
             <p className="text-gray-600 mb-8">Gunakan kotak pencarian untuk mencari berita yang Anda inginkan.</p>
             <button
               onClick={() => router.push("/berita")}
@@ -492,13 +494,11 @@ const SearchResultsPage: React.FC = () => {
           breadcrumbItems={getBreadcrumbItems()}
           description="Tidak ada hasil yang ditemukan"
         />
-        
+
         <div className="px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-7xl mx-auto text-center py-20">
             <div className="text-6xl mb-6">🔍</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">
-              Tidak Ada Hasil untuk "{query}"
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">Tidak Ada Hasil untuk "{query}"</h2>
             <p className="text-gray-600 mb-8">
               Coba gunakan kata kunci yang berbeda atau periksa ejaan kata kunci Anda.
             </p>
@@ -534,7 +534,7 @@ const SearchResultsPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           {/* Back Button dan Info Hasil */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
-            <button 
+            <button
               onClick={() => router.push("/berita")}
               className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-bold border-2 border-blue-200 hover:border-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300"
             >
@@ -543,9 +543,9 @@ const SearchResultsPage: React.FC = () => {
               </svg>
               Kembali ke Daftar Berita
             </button>
-            
+
             <div className="text-sm text-gray-600 bg-white px-4 py-2 rounded-lg border-2 border-gray-200">
-              Menampilkan {news.length} dari {totalResults} hasil untuk 
+              Menampilkan {news.length} dari {totalResults} hasil untuk
               <span className="font-bold text-blue-600 ml-1">"{query}"</span>
             </div>
           </div>
@@ -573,7 +573,7 @@ const SearchResultsPage: React.FC = () => {
           )}
         </div>
       </div>
-      
+
       <style jsx>{`
         .animate-fadeInUp {
           animation: fadeInUp 0.6s ease-out forwards;
