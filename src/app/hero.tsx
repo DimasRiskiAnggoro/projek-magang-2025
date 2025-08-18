@@ -13,9 +13,9 @@ function Hero() {
     },
     {
       id: 2,
-      src: "/image/image-4.jpeg", 
+      src: "/image/awaksigap-hero.jpg", 
       alt: "Pemandangan Kota Madiun 2",
-      thumbnail: "/image/image-4.jpeg"
+      thumbnail: "/image/awaksigap-hero.jpg"
     }
   ];
 
