@@ -53,10 +53,10 @@ export default function HeaderCarousel() {
     const interval = setInterval(() => {
       if (carouselRef.current) {
         const scrollAmount = 1
-        const maxScroll = carouselRef.current.scrollWidth / 2
+        const singleSetWidth = quickLinks.length * (192 + 16) // 192px width + 16px gap per item
         const currentScroll = carouselRef.current.scrollLeft
 
-        if (currentScroll >= maxScroll) {
+        if (currentScroll >= singleSetWidth) {
           carouselRef.current.scrollLeft = 0
         } else {
           carouselRef.current.scrollLeft += scrollAmount
@@ -122,17 +122,15 @@ export default function HeaderCarousel() {
               ></div>
               <div className="relative z-10 text-center">
                 <div className="flex justify-center mb-3">
-                  <div className="w-24 h-24 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                     <img
                       src={link.logo || "/placeholder.svg"}
                       alt={`${link.title} logo`}
-                      className="w-20 h-20 object-contain"
+                      className="w-24 h-24 object-contain"
                     />
                   </div>
                 </div>
-                <div className="text-white">
-                  <h3 className="font-semibold text-sm mb-1 leading-tight">{link.title}</h3>
-                </div>
+                <h3 className="text-white font-medium text-sm mb-1">{link.title}</h3>
               </div>
             </div>
           ))}

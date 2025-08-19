@@ -1,15 +1,64 @@
-import { Play } from "lucide-react"
+"use client"
+import { useEffect, useRef, useState } from "react"
 
 export default function AboutSection() {
+  const [isVisible, setIsVisible] = useState({
+    title: false,
+    content: false,
+    stats: false,
+  })
+
+  const titleRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const statsRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const target = entry.target as HTMLElement
+          if (target === titleRef.current) {
+            setIsVisible((prev) => ({ ...prev, title: true }))
+          } else if (target === contentRef.current) {
+            setIsVisible((prev) => ({ ...prev, content: true }))
+          } else if (target === statsRef.current) {
+            setIsVisible((prev) => ({ ...prev, stats: true }))
+          }
+        }
+      })
+    }, observerOptions)
+
+    if (titleRef.current) observer.observe(titleRef.current)
+    if (contentRef.current) observer.observe(contentRef.current)
+    if (statsRef.current) observer.observe(statsRef.current)
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-16">
         <div className="p-8">
-          <div className="text-center mb-8">
+          <div
+            ref={titleRef}
+            className={`text-center mb-8 transition-all duration-1000 ease-out ${
+              isVisible.title ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-8"
+            }`}
+          >
             <h2 className="text-4xl font-bold text-black dark:text-white">Tentang Kecamatan Taman Kota Madiun</h2>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <div className="space-y-6">
+            <div
+              ref={contentRef}
+              className={`space-y-6 transition-all duration-1000 ease-out delay-200 ${
+                isVisible.content ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+              }`}
+            >
               <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
                 Kecamatan Taman merupakan salah satu kecamatan yang berada di wilayah Kota Madiun, Jawa Timur. Sebagai
                 pusat pemerintahan dan bisnis, kecamatan ini memiliki peran strategis dalam pengembangan ekonomi dan
@@ -21,7 +70,12 @@ export default function AboutSection() {
                 kualitas pendidikan, kesehatan, dan pemberdayaan ekonomi masyarakat dengan dukungan teknologi informasi
                 terkini.
               </p>
-              <div className="grid grid-cols-2 gap-4 mt-8">
+              <div
+                ref={statsRef}
+                className={`grid grid-cols-2 gap-4 mt-8 transition-all duration-1000 ease-out delay-500 ${
+                  isVisible.stats ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                }`}
+              >
                 <div className="text-center p-4">
                   <h4 className="font-bold text-2xl text-black dark:text-white">8</h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Kelurahan</p>
@@ -53,10 +107,6 @@ export default function AboutSection() {
                     allowFullScreen
                     referrerPolicy="strict-origin-when-cross-origin"
                   ></iframe>
-                </div>
-                <div className="absolute -bottom-2 -right-2 bg-red-500 text-white px-3 py-2 rounded-full text-sm font-medium shadow-lg z-40">
-                  <Play className="w-4 h-4 inline mr-1" />
-                  Video Profil
                 </div>
               </div>
               <div className="absolute top-2 right-12 w-16 h-16 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-xl"></div>

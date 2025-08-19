@@ -33,7 +33,7 @@ function Footer() {
       title: "Seputar",
       subtitle: "Kecamatan Taman Kota Madiun",
       icon: "🏛️",
-      bgColor: "from-teal-400 to-teal-600",
+      bgColor: "from-blue-400 to-blue-600",
       links: [
         "Website Kecamatan Taman",
         "Portal Open Data",
@@ -47,7 +47,7 @@ function Footer() {
       title: "Seputar",
       subtitle: "Pelayanan Kecamatan Taman",
       icon: "📋",
-      bgColor: "from-teal-500 to-teal-700",
+      bgColor: "from-blue-500 to-blue-700",
       links: [
         "Awak Sigap Kota Madiun",
         "PPID Kota Madiun",
@@ -104,7 +104,7 @@ function Footer() {
   ]
 
   return (
-    <div className="bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800 text-white relative overflow-hidden">
+    <div className="text-white relative overflow-hidden" style={{ backgroundColor: "#68b3e3" }}>
       {/* [FIX] Gunakan state untuk merender elemen animasi */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         {animatedDots.map((style, i) => (
@@ -161,7 +161,7 @@ function Footer() {
                       {card.icon}
                     </div>
                     <div>
-                      <p className="text-teal-600 text-sm font-normal">{card.title}</p>
+                      <p className="text-blue-600 text-sm font-normal">{card.title}</p>
                       <h3 className="text-2xl font-normal text-gray-800">{card.subtitle}</h3>
                     </div>
                   </div>
@@ -170,16 +170,16 @@ function Footer() {
                       <a
                         key={linkIndex}
                         href="#"
-                        className="group flex items-center gap-2 text-gray-600 hover:text-teal-600 transition-all duration-300 p-2 rounded-lg hover:bg-teal-50 relative overflow-hidden"
+                        className="group flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-all duration-300 p-2 rounded-lg hover:bg-blue-50 relative overflow-hidden"
                         style={{ transitionDelay: `${linkIndex * 50}ms` }}
                       >
-                        <span className="text-teal-400 group-hover:translate-x-1 transition-transform duration-300">
+                        <span className="text-blue-400 group-hover:translate-x-1 transition-transform duration-300">
                           ▶
                         </span>
                         <span className="text-sm font-normal group-hover:translate-x-1 transition-transform duration-300">
                           {link}
                         </span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-teal-600 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500 opacity-10"></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500 opacity-10"></div>
                       </a>
                     ))}
                   </div>
@@ -208,18 +208,18 @@ function Footer() {
               onMouseLeave={() => setHoveredSection(null)}
             >
               <div className="relative group">
-                <h3 className="text-xl font-normal mb-6 text-white group-hover:text-teal-200 transition-colors duration-300 relative">
+                <h3 className="text-xl font-normal mb-6 text-white group-hover:text-blue-200 transition-colors duration-300 relative">
                   {section.title}
-                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-300 to-white group-hover:w-full transition-all duration-700"></div>
-                  <div className="absolute -left-3 top-1/2 w-2 h-2 bg-teal-300 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-1/2 group-hover:scale-150"></div>
+                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-300 to-white group-hover:w-full transition-all duration-700"></div>
+                  <div className="absolute -left-3 top-1/2 w-2 h-2 bg-blue-300 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-1/2 group-hover:scale-150"></div>
                 </h3>
                 {section.content ? (
                   <div className="space-y-2">
                     {section.content.map((line, idx) => (
                       <p
                         key={idx}
-                        className={`text-teal-100 hover:text-white transition-all duration-300 transform hover:translate-x-2 hover:scale-105 ${
-                          line.includes("Jam Pelayanan") ? "font-normal mt-4 text-teal-200" : ""
+                        className={`text-white hover:text-blue-100 transition-all duration-300 transform hover:translate-x-2 hover:scale-105 ${
+                          line.includes("Jam Pelayanan") ? "font-normal mt-4 text-white" : ""
                         } ${line === "" ? "h-2" : ""}`}
                         style={{ transitionDelay: `${idx * 50}ms` }}
                       >
@@ -234,16 +234,16 @@ function Footer() {
                         <li key={idx}>
                           <a
                             href="#"
-                            className="group/link text-teal-100 hover:text-white transition-all duration-500 flex items-center relative overflow-hidden p-2 rounded-lg -m-2"
+                            className="group/link text-white hover:text-blue-100 transition-all duration-500 flex items-center relative overflow-hidden p-2 rounded-lg -m-2"
                             style={{ transitionDelay: `${idx * 75}ms` }}
                           >
                             <span className="relative z-10 transform group-hover/link:translate-x-3 transition-all duration-300 flex items-center gap-3">
-                              <span className="w-1.5 h-1.5 bg-teal-400 rounded-full group-hover/link:scale-150 group-hover/link:bg-white transition-all duration-300"></span>
+                              <span className="w-1.5 h-1.5 bg-white rounded-full group-hover/link:scale-150 group-hover/link:bg-blue-100 transition-all duration-300"></span>
                               <span className="group-hover/link:font-normal transition-all duration-300">{link}</span>
                             </span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-teal-400 transform -translate-x-full group-hover/link:translate-x-0 transition-transform duration-500 opacity-20 rounded-lg"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-400 transform -translate-x-full group-hover/link:translate-x-0 transition-transform duration-500 opacity-20 rounded-lg"></div>
                             <div className="absolute inset-0 bg-white transform scale-0 group-hover/link:scale-100 transition-transform duration-300 opacity-5 rounded-lg"></div>
-                            <div className="absolute inset-0 rounded-lg border-2 border-teal-300 opacity-0 group-hover/link:opacity-30 transform -skew-x-12 -translate-x-full group-hover/link:translate-x-full transition-all duration-700"></div>
+                            <div className="absolute inset-0 rounded-lg border-2 border-blue-300 opacity-0 group-hover/link:opacity-30 transform -skew-x-12 -translate-x-full group-hover/link:translate-x-full transition-all duration-700"></div>
                           </a>
                         </li>
                       ))}
@@ -253,8 +253,8 @@ function Footer() {
             </div>
           ))}
         </div>
-        <div className="mt-16 pt-8 border-t border-teal-400 border-opacity-30 relative">
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-400 to-transparent">
+        <div className="mt-16 pt-8 border-t border-blue-400 border-opacity-30 relative">
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-pulse opacity-50"></div>
           </div>
           <div className="flex justify-end">
@@ -262,7 +262,7 @@ function Footer() {
               {socialIcons.map((social, idx) => (
                 <div
                   key={social.name}
-                  className={`w-12 h-12 bg-transparent border-2 border-white rounded-lg flex items-center justify-center hover:bg-white hover:text-teal-600 transition-all duration-500 transform hover:scale-110 hover:rotate-12 cursor-pointer relative overflow-hidden group ${social.color}`}
+                  className={`w-12 h-12 bg-transparent border-2 border-white rounded-lg flex items-center justify-center hover:bg-white hover:text-blue-600 transition-all duration-500 transform hover:scale-110 hover:rotate-12 cursor-pointer relative overflow-hidden group ${social.color}`}
                   style={{
                     animation: `float 3s ease-in-out infinite ${idx * 0.5}s`,
                   }}
@@ -271,7 +271,7 @@ function Footer() {
                     {social.icon}
                   </span>
                   <div className="absolute inset-0 bg-white rounded-lg scale-0 group-hover:scale-150 transition-transform duration-700 opacity-0 group-hover:opacity-20"></div>
-                  <div className="absolute inset-0 rounded-lg border-2 border-teal-300 opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 rounded-lg border-2 border-blue-300 opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
                 </div>
               ))}
             </div>
