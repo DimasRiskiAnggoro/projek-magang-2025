@@ -1,76 +1,115 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function Hero() {
-  // Array gambar untuk hero
-  const heroImages = [
+  const heroItems = [
     {
-      id: 1,
-      src: "/image/hut80.jpg",
-      alt: "Pemandangan Kota Madiun 1",
-      thumbnail: "/image/hut80.jpg"
+      id: 1, type: 'image', src: "/image/hut80.jpg", alt: "hut80", thumbnail: "/image/hut80.jpg"
     },
     {
-      id: 2,
-      src: "/image/awaksigap-hero.jpg", 
-      alt: "Pemandangan Kota Madiun 2",
-      thumbnail: "/image/awaksigap-hero.jpg"
+      id: 2, type: 'image', src: "/image/awaksigap-hero.jpg", alt: "awaksigap", thumbnail: "/image/awaksigap-hero.jpg"
+    },
+    {
+      id: 3, type: 'video', src: "/video/PesonaKotaMadiun.mp4", alt: "Pemandangan Kota Madiun", thumbnail: "/video/PesonaKotaMadiun.mp4" 
     }
   ];
 
+  const [activeItem, setActiveItem] = useState(heroItems[0]);
+  
+  const videoThumbnailRefs = useRef(new Map());
 
-  const [activeImage, setActiveImage] = useState(heroImages[0]);
-
-  // Auto-play carousel
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveImage(currentImage => {
-        const currentIndex = heroImages.findIndex(img => img.id === currentImage.id);
-        const nextIndex = currentIndex < heroImages.length - 1 ? currentIndex + 1 : 0;
-        return heroImages[nextIndex];
+      setActiveItem(currentItem => {
+        const currentIndex = heroItems.findIndex(item => item.id === currentItem.id);
+        const nextIndex = (currentIndex + 1) % heroItems.length;
+        return heroItems[nextIndex];
       });
-    }, 5000); // Ganti gambar setiap 5 detik
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Main Hero Image */}
-      <div 
-        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-700 ease-in-out"
-        style={{
-          backgroundImage: `url('${activeImage.src}')`
-        }}
-      />
-             
+  const handleMouseEnter = (itemId) => {
+    const node = videoThumbnailRefs.current.get(itemId);
+    if (node) {
+      node.play();
+    }
+  };
 
-             
-      {/* Thumbnail Carousel at Bottom */}
+  const handleMouseLeave = (itemId) => {
+    const node = videoThumbnailRefs.current.get(itemId);
+    if (node) {
+      node.pause();
+    }
+  };
+
+  return (
+    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+      {heroItems.map((item) => {
+        const isActive = activeItem.id === item.id;
+        if (item.type === 'video') {
+          return (
+            <video
+              key={item.id}
+              src={item.src}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-0'}`}
+              autoPlay muted loop playsInline suppressHydrationWarning={true}
+            />
+          );
+        } else {
+          return (
+            <div
+              key={item.id}
+              className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-0'}`}
+              style={{ backgroundImage: `url('${item.src}')` }}
+            />
+          );
+        }
+      })}
+
       <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20">
-        <div className="flex items-center gap-2">
-          {heroImages.map((image, index) => (
+        <div className="flex items-center gap-2 p-2 bg-black/20 backdrop-blur-sm rounded-xl">
+          {heroItems.map((item) => (
             <button
-              key={image.id}
-              onClick={() => setActiveImage(image)}
-              className={`relative overflow-hidden transition-all duration-300 ${
-                activeImage.id === image.id 
-                  ? 'ring-3 ring-blue-500 shadow-xl' 
-                  : 'ring-1 ring-white/50 hover:ring-white/80'
+              key={item.id}
+              onClick={() => setActiveItem(item)}
+              className={`relative h-16 w-24 overflow-hidden rounded-md transition-all duration-300 ${
+                activeItem.id === item.id 
+                  ? 'ring-2 ring-white shadow-xl' 
+                  : 'ring-1 ring-white/30 hover:ring-white/80 scale-90 hover:scale-100'
               }`}
+              onMouseEnter={() => item.type === 'video' && handleMouseEnter(item.id)}
+              onMouseLeave={() => item.type === 'video' && handleMouseLeave(item.id)}
             >
-              <img
-                src={image.thumbnail}
-                alt={image.alt}
-                className="w-24 h-16 object-cover"
-              />
+              {item.type === 'video' ? (
+                <video
+                  ref={(node) => {
+                    const map = videoThumbnailRefs.current;
+                    if (node) {
+                      map.set(item.id, node);
+                    } else {
+                      map.delete(item.id);
+                    }
+                  }}
+                  src={item.thumbnail}
+                  className="w-full h-full object-cover"
+                  muted
+                  loop
+                  playsInline
+                />
+              ) : (
+                <img
+                  src={item.thumbnail}
+                  alt={item.alt}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </button>
           ))}
         </div>
       </div>
-
-
     </div>
   );
 }

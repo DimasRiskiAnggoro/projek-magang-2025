@@ -124,6 +124,5 @@ export default function UsersPage() {
         />
       )}
     </>
-    // HAPUS: Tag </AdminLayout> penutup
   );
 }

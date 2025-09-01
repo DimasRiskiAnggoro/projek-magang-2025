@@ -1,6 +1,6 @@
 import HeaderCarousel from "./carrousel-taman"
 import AboutSection from "./about-section"
-import NewsSection from "./news-section"
+import NewsSection from "./portal-section"
 import ServiceSection from "./service-info"
 
 export default function Content() {

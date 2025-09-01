@@ -4,8 +4,32 @@ import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 
-// Komponen TechBackground yang disederhanakan
+// Komponen TechBackground yang diperbaiki untuk menghindari hydration mismatch
 const TechBackground: React.FC = () => {
+  const [isClient, setIsClient] = useState(false)
+  const [particles, setParticles] = useState<Array<{
+    id: number
+    left: number
+    top: number
+    delay: number
+    duration: number
+  }>>([])
+
+  useEffect(() => {
+    setIsClient(true)
+    
+    // Generate particles hanya di client side
+    const newParticles = Array.from({ length: 15 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 3,
+      duration: 2 + Math.random() * 3,
+    }))
+    
+    setParticles(newParticles)
+  }, [])
+
   return (
     <div className="absolute inset-0 overflow-hidden">
       <div
@@ -19,15 +43,16 @@ const TechBackground: React.FC = () => {
         }}
       />
 
-      {Array.from({ length: 15 }).map((_, i) => (
+      {/* Hanya render particles setelah client-side hydration */}
+      {isClient && particles.map((particle) => (
         <div
-          key={i}
+          key={particle.id}
           className="absolute w-1 h-1 bg-white rounded-full opacity-60 animate-pulse"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 3}s`,
-            animationDuration: `${2 + Math.random() * 3}s`,
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
+            animationDelay: `${particle.delay}s`,
+            animationDuration: `${particle.duration}s`,
           }}
         />
       ))}

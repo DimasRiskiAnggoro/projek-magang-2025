@@ -257,7 +257,7 @@ const PopularNewsSection: React.FC<{ popularNews: NewsItem[] }> = ({ popularNews
                 </h4>
 
                 <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <span className="text-orange-500 font-medium">Siaran Pers</span>
+                  <span className="text-orange-500 font-medium">Popular News</span>
                   <span>•</span>
                   <span>{formatRelativeTime(news.published_at)}</span>
                 </div>

@@ -4,8 +4,32 @@ import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 
-// Updated TechBackground to match NewsDetailPage exactly
+// Updated TechBackground yang diperbaiki untuk menghindari hydration mismatch
 const TechBackground: React.FC = () => {
+  const [isClient, setIsClient] = useState(false)
+  const [particles, setParticles] = useState<Array<{
+    id: number
+    left: number
+    top: number
+    delay: number
+    duration: number
+  }>>([])
+
+  useEffect(() => {
+    setIsClient(true)
+    
+    // Generate particles hanya di client side
+    const newParticles = Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 3,
+      duration: 2 + Math.random() * 3,
+    }))
+    
+    setParticles(newParticles)
+  }, [])
+
   return (
     <div className="absolute inset-0 overflow-hidden">
       {/* Grid pattern */}
@@ -39,17 +63,17 @@ const TechBackground: React.FC = () => {
         </svg>
       </div>
 
-      {/* Floating particles */}
+      {/* Floating particles - hanya render setelah client-side hydration */}
       <div className="absolute inset-0">
-        {Array.from({ length: 20 }).map((_, i) => (
+        {isClient && particles.map((particle) => (
           <div
-            key={i}
+            key={particle.id}
             className="absolute w-1 h-1 bg-white rounded-full opacity-60 animate-pulse"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`
+              left: `${particle.left}%`,
+              top: `${particle.top}%`,
+              animationDelay: `${particle.delay}s`,
+              animationDuration: `${particle.duration}s`
             }}
           />
         ))}
@@ -486,12 +510,13 @@ const CategoryPage: React.FC = () => {
 
   return (
     <main className="min-h-screen bg-gray-50">
+      {/* Hero Section dengan Tech Background - matching BeritaPage */}
       <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-purple-700 pt-20 pb-16">
         <TechBackground />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb - dirapikan ke kiri */}
-          <nav className="mb-8 text-left">
-            <div className="flex items-center gap-2 text-sm text-white/80">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Breadcrumb */}
+          <nav className="mb-8">
+            <div className="flex items-center justify-center gap-2 text-sm text-white/80">
               <Link href="/" className="hover:text-white transition-colors">
                 Home
               </Link>
@@ -500,17 +525,12 @@ const CategoryPage: React.FC = () => {
                 Berita
               </Link>
               <span>|</span>
-              <span className="text-white font-semibold">Pelayanan</span>
+              <span className="text-white font-semibold">{category?.name || "Kategori"}</span>
             </div>
           </nav>
 
-          {/* Judul dan deskripsi - dirapikan ke kiri */}
-          <div className="text-left">
-            <h1 className="text-5xl font-bold text-white mb-4">Kategori : Pelayanan</h1>
-            <p className="text-xl text-white/90">
-              Berita terkini untuk kategori Pelayanan - 4 berita ditemukan
-            </p>
-          </div>
+          <h1 className="text-5xl font-bold text-white mb-4">Kategori : {category?.name || "Kategori"}</h1>
+          <p className="text-xl text-white/90 max-w-2xl mx-auto">Berita terkini untuk kategori {category?.name || "ini"} - {news.length} berita ditemukan</p>
         </div>
 
         {/* Tech decorations */}
@@ -518,6 +538,7 @@ const CategoryPage: React.FC = () => {
         <div className="absolute bottom-20 left-20 w-16 h-16 border-2 border-white/30 rotate-12 opacity-40" />
         <div className="absolute top-1/2 right-1/4 w-12 h-12 bg-white/10 rounded-full opacity-50" />
       </div>
+
       {/* Content Section */}
       <div className="px-4 sm:px-6 lg:px-8 py-16">
         <div className="max-w-7xl mx-auto">

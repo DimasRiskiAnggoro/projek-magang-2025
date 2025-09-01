@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
 const TechBackground: React.FC = () => {
-  // Fixed: Move random generation to useEffect to avoid hydration mismatch
   const [particles, setParticles] = useState<Array<{
     left: string;
     top: string;
@@ -14,7 +13,6 @@ const TechBackground: React.FC = () => {
   }> | null>(null);
 
   useEffect(() => {
-    // Generate particles only on client side
     setParticles(
       Array.from({ length: 20 }).map(() => ({
         left: `${Math.random() * 100}%`,
@@ -27,8 +25,7 @@ const TechBackground: React.FC = () => {
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Grid pattern */}
-      <div 
+      <div
         className="absolute inset-0 opacity-20"
         style={{
           backgroundImage: `
@@ -39,14 +36,13 @@ const TechBackground: React.FC = () => {
         }}
       />
       
-      {/* Circuit lines */}
       <div className="absolute inset-0">
         <svg className="w-full h-full opacity-30" viewBox="0 0 1200 600">
           <defs>
             <pattern id="circuit" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
-              <path d="M20 20h160M20 20v160M180 20v160M20 180h160" 
-                    stroke="rgba(255,255,255,0.3)" 
-                    strokeWidth="1" 
+              <path d="M20 20h160M20 20v160M180 20v160M20 180h160"
+                    stroke="rgba(255,255,255,0.3)"
+                    strokeWidth="1"
                     fill="none" />
               <circle cx="20" cy="20" r="3" fill="rgba(255,255,255,0.5)" />
               <circle cx="180" cy="20" r="3" fill="rgba(255,255,255,0.5)" />
@@ -58,7 +54,6 @@ const TechBackground: React.FC = () => {
         </svg>
       </div>
 
-      {/* Floating particles - only render after client-side generation */}
       {particles && (
         <div className="absolute inset-0">
           {particles.map((particle, i) => (
@@ -76,12 +71,10 @@ const TechBackground: React.FC = () => {
         </div>
       )}
 
-      {/* Animated lines */}
       <div className="absolute inset-0">
         <div className="tech-lines opacity-20"></div>
       </div>
 
-      {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20" />
     </div>
   );
@@ -122,6 +115,14 @@ type NewsDetail = {
     original_name?: string;
     file_size?: number;
     urutan?: number;
+    display_mode?: 'link' | 'embed';
+  }>;
+  tables?: Array<{
+    id: number;
+    nama_inovasi: string;
+    uraian: string;
+    link?: string;
+    urutan: number;
   }>;
 };
 
@@ -154,6 +155,65 @@ const FormattedContent: React.FC<{ content: string }> = ({ content }) => {
   );
 };
 
+const InnovationTable: React.FC<{ tables: NewsDetail['tables'] }> = ({ tables }) => {
+  if (!tables || tables.length === 0) return null;
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center border-b-2 border-blue-500 pb-3">
+        Daftar Tabel
+      </h2>
+      
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-blue-50">
+              <th className="border border-gray-300 p-3 text-left font-semibold text-blue-800">No</th>
+              <th className="border border-gray-300 p-3 text-left font-semibold text-blue-800">Nama Inovasi</th>
+              <th className="border border-gray-300 p-3 text-left font-semibold text-blue-800">Uraian</th>
+              <th className="border border-gray-300 p-3 text-left font-semibold text-blue-800">Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tables
+              .sort((a, b) => (a.urutan || 0) - (b.urutan || 0))
+              .map((table, index) => (
+                <tr key={table.id || index} className="hover:bg-gray-50 transition-colors">
+                  <td className="border border-gray-300 p-3 font-medium text-gray-700">
+                    {table.urutan || index + 1}
+                  </td>
+                  <td className="border border-gray-300 p-3 font-semibold text-blue-700">
+                    {table.nama_inovasi}
+                  </td>
+                  <td className="border border-gray-300 p-3 text-gray-600 leading-relaxed">
+                    {table.uraian}
+                  </td>
+                  <td className="border border-gray-300 p-3">
+                    {table.link ? (
+                      <a
+                        href={table.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
+                        </svg>
+                        Buka Link
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 text-sm">Tidak ada link</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
 const NewsDetailPage = () => {
   const params = useParams();
   const router = useRouter();
@@ -162,6 +222,7 @@ const NewsDetailPage = () => {
   const [news, setNews] = useState<NewsDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tables, setTables] = useState<NewsDetail['tables']>([]);
 
   useEffect(() => {
     const fetchNewsDetail = async () => {
@@ -180,6 +241,20 @@ const NewsDetailPage = () => {
                 throw new Error('Berita tidak ditemukan atau belum dipublikasikan');
             }
             setNews(data);
+            
+            if (data.id) {
+              try {
+                const tablesResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${data.id}/tables`, {
+                  headers: { 'Accept': 'application/json' },
+                });
+                if (tablesResponse.ok) {
+                  const tablesData = await tablesResponse.json();
+                  setTables(tablesData);
+                }
+              } catch (tableError) {
+                console.error("Error fetching tables:", tableError);
+              }
+            }
         } catch (error) {
             console.error("Error fetching news detail:", error);
             setError(error instanceof Error ? error.message : 'Terjadi kesalahan');
@@ -271,15 +346,13 @@ const NewsDetailPage = () => {
     ...contentImages.map(img => ({ ...img, type: 'image', order: img.urutan || 0 })),
     ...news.contents.map(content => ({ ...content, order: content.urutan || 0 })),
     ...news.pdfs.map(pdf => ({ ...pdf, type: 'pdf', order: pdf.urutan || 0 }))
-  ].sort((a, b) => a.order - b.order);
+  ].sort((a, b) => (a.order || 0) - (b.order || 0));
 
   return (
     <main className="min-h-screen bg-gray-50">
-      {/* Header Section with matching height to Berita page */}
       <div className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-purple-700 pt-32 pb-24">
         <TechBackground />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          {/* Left-aligned breadcrumb */}
           <nav className="mb-6">
             <div className="flex items-center gap-2 text-sm text-white/80">
               <Link href="/" className="hover:text-white transition-colors">Home</Link>
@@ -290,7 +363,6 @@ const NewsDetailPage = () => {
             </div>
           </nav>
 
-          {/* Left-aligned content */}
           <div className="max-w-4xl">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight text-left">
               {news.title}
@@ -327,8 +399,8 @@ const NewsDetailPage = () => {
             {news.categories && news.categories.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {news.categories.map(cat => (
-                  <Link 
-                    key={cat.id} 
+                  <Link
+                    key={cat.id}
                     href={`/berita/kategori/${cat.id}`}
                     className="px-3 py-1 text-xs font-bold bg-white/20 text-white hover:bg-white hover:text-blue-700 transition-all duration-300"
                   >
@@ -343,11 +415,10 @@ const NewsDetailPage = () => {
         <div className="absolute bottom-20 left-20 w-16 h-16 border-2 border-white/30 rotate-12 opacity-40" />
       </div>
 
-      {/* Content Section */}
       <div className="px-4 sm:px-6 lg:px-8 py-16">
         <div className="max-w-4xl mx-auto">
           <nav className="mb-8">
-            <button 
+            <button
               onClick={handleBack}
               className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-bold border-2 border-blue-200 hover:border-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300 transform hover:scale-105"
             >
@@ -357,6 +428,10 @@ const NewsDetailPage = () => {
               Kembali ke Daftar Berita
             </button>
           </nav>
+
+          {tables && tables.length > 0 && (
+            <InnovationTable tables={tables} />
+          )}
 
           <article className="bg-white rounded-lg shadow-lg p-8 space-y-6">
             {allContent.length === 0 ? (
@@ -368,7 +443,7 @@ const NewsDetailPage = () => {
                 if ('type' in item && item.type === 'image') {
                   const imageItem = item as typeof news.images[0] & { type: string };
                   return (
-                    <figure key={`image-${imageItem.id}-${index}`} className="mb-8">
+                    <figure key={`image-${imageItem.id}-${index}`} className="my-6">
                       <img
                         src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${imageItem.path}`}
                         alt={imageItem.caption || news.title}
@@ -381,13 +456,17 @@ const NewsDetailPage = () => {
                         </figcaption>
                       )}
                     </figure>
-                  );  
+                  );
                 }
 
                 if ('type' in item && item.type === 'pdf') {
-                  const pdfItem = item as typeof news.pdfs[0] & { type: string };
-                  return (
-                    <div key={`pdf-${pdfItem.id}-${index}`} className="bg-gray-50 border-2 border-gray-200 rounded-lg p-6 mb-6">
+                  const pdfItem = item as (typeof news.pdfs)[0] & { type: string, display_mode?: 'link' | 'embed' };
+
+                  // =======================================================
+                  // PERUBAHAN DI SINI: Menambahkan prop 'key' ke PdfInfoCard
+                  // =======================================================
+                  const PdfInfoCard = (
+                    <div key={`pdf-info-${pdfItem.id}-${index}`} className="bg-gray-50 border-2 border-gray-200 rounded-lg p-6 my-6">
                       <div className="flex items-start gap-4">
                         <div className="flex-shrink-0">
                           <div className="w-12 h-12 bg-red-100 border-2 border-red-200 flex items-center justify-center">
@@ -411,8 +490,7 @@ const NewsDetailPage = () => {
                           </div>
                           <div className="flex gap-3">
                             <a
-                              href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${pdfItem.path}`}
-                              download
+                              href={`${process.env.NEXT_PUBLIC_API_URL}/api/pdfs/download/${pdfItem.id}`}
                               className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white font-bold border-2 border-blue-600 hover:bg-blue-600 transition-all duration-300 transform hover:scale-105"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -425,20 +503,40 @@ const NewsDetailPage = () => {
                       </div>
                     </div>
                   );
+                  
+                  if (pdfItem.display_mode === 'embed') {
+                    return (
+                      <div key={`pdf-block-${pdfItem.id}-${index}`}>
+                        {PdfInfoCard}
+                        <div className="mt-4 border rounded-lg overflow-hidden">
+                          <iframe
+                            src={`${process.env.NEXT_PUBLIC_API_URL}/api/pdfs/view/${pdfItem.id}`}
+                            title={pdfItem.title || 'Tampilan PDF'}
+                            className="w-full h-[800px] border-none"
+                            aria-label="PDF Viewer"
+                          >
+                            Browser Anda tidak mendukung tampilan PDF. Silakan klik tombol download.
+                          </iframe>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return PdfInfoCard;
                 }
 
                 if ('content' in item) {
                   const contentItem = item as typeof news.contents[0];
                   if (contentItem.type === 'heading') {
                     return (
-                      <h2 key={`content-${contentItem.id}-${index}`} className="text-2xl font-bold text-gray-800 mb-4 mt-8">
+                      <h2 key={`content-${contentItem.id}-${index}`} className="text-2xl font-bold text-gray-800 my-6">
                         {contentItem.content}
                       </h2>
                     );
                   }
                   if (contentItem.type === 'paragraph') {
                     return (
-                      <div key={`content-${contentItem.id}-${index}`}>
+                      <div key={`content-${contentItem.id}-${index}`} className="my-6">
                         <FormattedContent content={contentItem.content} />
                       </div>
                     );
@@ -450,10 +548,10 @@ const NewsDetailPage = () => {
 
             {news.source_url && (
               <div className="mt-8 p-6 bg-blue-50 border-2 border-blue-200">
-                <p className="text-sm font-bold text-blue-700 mb-2">Sumber:</p>
-                <a 
-                  href={news.source_url} 
-                  target="_blank" 
+                <p className="text-sm font-bold text-blue-700 mb-2">Link :</p>
+                <a
+                  href={news.source_url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:text-blue-800 text-sm break-all underline"
                 >

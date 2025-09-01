@@ -1,5 +1,5 @@
 "use client"
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 
 const quickLinks = [
   {
@@ -48,12 +48,13 @@ const quickLinks = [
 
 export default function HeaderCarousel() {
   const carouselRef = useRef<HTMLDivElement>(null)
+  const [isPaused, setIsPaused] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (carouselRef.current) {
-        const scrollAmount = 1
-        const singleSetWidth = quickLinks.length * (192 + 16) // 192px width + 16px gap per item
+      if (carouselRef.current && !isPaused) {
+        const scrollAmount = 0.5
+        const singleSetWidth = quickLinks.length * (192 + 16)
         const currentScroll = carouselRef.current.scrollLeft
 
         if (currentScroll >= singleSetWidth) {
@@ -62,16 +63,21 @@ export default function HeaderCarousel() {
           carouselRef.current.scrollLeft += scrollAmount
         }
       }
-    }, 20)
+    }, 16)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [isPaused])
 
   return (
     <div
       className="mb-16 w-full relative overflow-hidden border-t-8 border-white"
-      style={{ backgroundColor: "#68b3e3" }}
+      style={{ backgroundColor: "#1E90FF" }}
     >
+      <div className="relative z-20 text-center py-8 px-4">
+        <h1 className="text-white text-2xl md:text-3xl lg:text-4xl font-bold mb-2">Selamat Datang di Website Resmi</h1>
+        <h2 className="text-white/90 text-lg md:text-xl lg:text-2xl font-medium">Kecamatan Taman Kota Madiun</h2>
+      </div>
+
       <div className="absolute inset-0 overflow-hidden">
         <div
           className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-bounce"
@@ -101,7 +107,7 @@ export default function HeaderCarousel() {
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"
           style={{ animationDuration: "4s" }}
         ></div>
-        <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-white/10 via-white/20 to-white/10 animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-white/15 via-white/25 to-white/15 animate-pulse"></div>{" "}
       </div>
 
       <div className="relative py-8 z-10">
@@ -110,7 +116,7 @@ export default function HeaderCarousel() {
           className="flex gap-4 overflow-x-auto scrollbar-hide py-4 px-4"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {[...quickLinks, ...quickLinks].map((link, index) => (
+          {[...quickLinks, ...quickLinks, ...quickLinks].map((link, index) => (
             <div
               key={index}
               className="group relative rounded-2xl hover:shadow-none transition-all duration-500 transform hover:-translate-y-1 hover:rotate-1 p-4 flex-shrink-0 w-48"
@@ -118,11 +124,15 @@ export default function HeaderCarousel() {
             >
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-500"
-                style={{ backgroundColor: "#68b3e3" }}
+                style={{ backgroundColor: "#1E90FF" }} // Updated hover background to match new sky blue color
               ></div>
               <div className="relative z-10 text-center">
                 <div className="flex justify-center mb-3">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                  >
                     <img
                       src={link.logo || "/placeholder.svg"}
                       alt={`${link.title} logo`}

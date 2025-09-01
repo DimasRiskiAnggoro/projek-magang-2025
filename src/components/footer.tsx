@@ -1,22 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 function Footer() {
   const [isVisible, setIsVisible] = useState(false)
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
   const [hoveredSection, setHoveredSection] = useState<number | null>(null)
-
-  // State untuk menyimpan style animasi yang dibuat di client
   const [animatedDots, setAnimatedDots] = useState([])
+  const [isInView, setIsInView] = useState(false)
+  const footerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     // Timer untuk animasi fade-in
     const timer = setTimeout(() => setIsVisible(true), 100)
 
-    // [FIX] Pindahkan kalkulasi acak ke dalam useEffect
-    // Ini hanya akan berjalan di sisi client setelah komponen dimuat
-    const dots = Array.from({ length: 20 }).map(() => ({
+    // Generate animated dots
+    const dots = Array.from({ length: 15 }).map(() => ({
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
       animationDelay: `${Math.random() * 3}s`,
@@ -24,256 +22,219 @@ function Footer() {
     }))
     setAnimatedDots(dots)
 
-    return () => clearTimeout(timer)
-  }, []) // Dependensi kosong agar hanya berjalan sekali
+    // Intersection Observer untuk scroll animation
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true)
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "50px",
+      },
+    )
 
-  // ... (sisa data Anda seperti topCards, footerSections, socialIcons tetap sama)
-  const topCards = [
-    {
-      title: "Seputar",
-      subtitle: "Kecamatan Taman Kota Madiun",
-      icon: "🏛️",
-      bgColor: "from-blue-400 to-blue-600",
-      links: [
-        "Website Kecamatan Taman",
-        "Portal Open Data",
-        "siRUP Kecamatan Taman",
-        "LPSE Kota Madiun",
-        "Madiun Today",
-        "E-Book Kota Madiun",
-      ],
-    },
-    {
-      title: "Seputar",
-      subtitle: "Pelayanan Kecamatan Taman",
-      icon: "📋",
-      bgColor: "from-blue-500 to-blue-700",
-      links: [
-        "Awak Sigap Kota Madiun",
-        "PPID Kota Madiun",
-        "Daftar Kategori Layanan",
-        "Kontribusi Berita",
-        "Ayo Ke Madiun",
-        "Kominfo Kota Madiun",
-      ],
-    },
-  ]
-  const footerSections = [
-    {
-      title: "Kecamatan Taman Kota Madiun",
-      content: [
-        "Jl. Raya Taman No. 15",
-        "Kel. Taman, Kecamatan Taman,",
-        "Kota Madiun, Jawa Timur.",
-        "",
-        "Jam Pelayanan :",
-        "Senin - Kamis (07.00 - 15.30)",
-        "Jumat (06.30 - 14.30)",
-      ],
-    },
-    {
-      title: "Portal & Layanan",
-      links: [
-        "Portal Open Data",
-        "siRUP Kecamatan Taman",
-        "LPSE Kota Madiun",
-        "Awak Sigap Kota Madiun",
-        "Daftar Kategori Layanan",
-        "Madiun Single Submission",
-      ],
-    },
-    {
-      title: "Agenda Kecamatan",
-      links: ["Agenda Kecamatan Taman", "Agenda Camat Taman", "Agenda Kegiatan Warga", "Agenda Pelayanan Publik"],
-    },
-    {
-      title: "Berita & Informasi",
-      links: [
-        "Madiun Today",
-        "Berita Kecamatan Taman",
-        "Pengumuman Resmi",
-        "93 FM Suara Madiun",
-        "Seputar Kota Madiun",
-      ],
-    },
-  ]
+    if (footerRef.current) {
+      observer.observe(footerRef.current)
+    }
+
+    return () => {
+      clearTimeout(timer)
+      if (footerRef.current) {
+        observer.unobserve(footerRef.current)
+      }
+    }
+  }, [])
+
+  // Komponen ikon sosial media dengan SVG asli
+  const SocialIcon = ({ platform, url }: { platform: string; url: string }) => {
+    const iconProps = {
+      className: "w-5 h-5 transition-all duration-300 group-hover:scale-125",
+    }
+
+    const getIcon = () => {
+      switch (platform) {
+        case "Facebook":
+          return (
+            <svg {...iconProps} fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+            </svg>
+          )
+        case "Twitter":
+          return (
+            <svg {...iconProps} fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+            </svg>
+          )
+        case "Instagram":
+          return (
+            <svg {...iconProps} fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-2.664 4.771-6.979 4.919-1.266.057-1.644.069-4.849.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.849-.07 4.354-.2 6.782-2.618 6.979-6.98.059-1.265.073-1.689.073-4.849 0-3.204-.013-3.583-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+            </svg>
+          )
+        case "YouTube":
+          return (
+            <svg {...iconProps} fill="currentColor" viewBox="0 0 24 24">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+            </svg>
+          )
+        default:
+          return null
+      }
+    }
+
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-10 h-10 bg-white/10 border border-white/30 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 transform hover:scale-110 hover:rotate-6 cursor-pointer relative overflow-hidden group"
+        title={platform}
+      >
+        <div className="text-white">{getIcon()}</div>
+        <div className="absolute inset-0 bg-white rounded-lg scale-0 group-hover:scale-150 transition-transform duration-500 opacity-0 group-hover:opacity-20"></div>
+      </a>
+    )
+  }
+
   const socialIcons = [
-    { name: "Facebook", icon: "f", color: "hover:bg-blue-600" },
-    { name: "Twitter", icon: "t", color: "hover:bg-sky-500" },
-    { name: "Instagram", icon: "i", color: "hover:bg-pink-500" },
+    { name: "Facebook", url: "https://www.facebook.com/kectaman.kotamadiun/" },
+    { name: "Twitter", url: "https://x.com/pkk_kectaman" },
+    { name: "Instagram", url: "https://www.instagram.com/kecamatantaman_madiun/" },
+    { name: "YouTube", url: "https://www.youtube.com/embed/xxT-ZbcMrGM?rel=0&modestbranding=1&showinfo=0" },
   ]
 
   return (
-    <div className="text-white relative overflow-hidden" style={{ backgroundColor: "#68b3e3" }}>
-      {/* [FIX] Gunakan state untuk merender elemen animasi */}
+    <div ref={footerRef} className="text-white relative overflow-hidden" style={{ backgroundColor: "#1e7dd6" }}>
+      {/* Animated background elements */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         {animatedDots.map((style, i) => (
-          <div key={i} className="absolute w-2 h-2 bg-white rounded-full animate-pulse" style={style} />
+          <div key={i} className="absolute w-1.5 h-1.5 bg-white rounded-full animate-pulse" style={style} />
         ))}
       </div>
 
-      {/* ... sisa kode JSX Anda tetap sama ... */}
       <div className="absolute inset-0 opacity-5 pointer-events-none">
         <div
-          className="absolute top-20 left-10 w-20 h-20 border-2 border-white rotate-45 animate-spin"
+          className="absolute top-20 left-10 w-16 h-16 border border-white rotate-45 animate-spin"
           style={{ animationDuration: "20s" }}
         ></div>
         <div
-          className="absolute bottom-32 right-20 w-16 h-16 bg-white rounded-full animate-bounce"
+          className="absolute bottom-32 right-20 w-12 h-12 bg-white rounded-full animate-bounce"
           style={{ animationDuration: "4s" }}
         ></div>
-        <div className="absolute top-1/2 left-1/4 w-12 h-12 border border-white rotate-45 animate-pulse"></div>
       </div>
 
-      {/* Top Cards Section */}
-      <div className="relative z-10 container mx-auto px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          {topCards.map((card, index) => (
-            <div
-              key={index}
-              className={`transform transition-all duration-700 ease-out ${
-                isVisible ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"
-              }`}
-              style={{ transitionDelay: `${index * 200}ms` }}
-              onMouseEnter={() => setHoveredCard(index)}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div
-                className={`h-2 bg-gradient-to-r ${card.bgColor} transition-all duration-500 ${
-                  hoveredCard === index ? "h-3 shadow-lg" : ""
-                }`}
-              ></div>
-              <div className="bg-white rounded-b-lg shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 hover:scale-105 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-5">
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${card.bgColor} transform rotate-12 scale-150 transition-transform duration-700 ${
-                      hoveredCard === index ? "rotate-45 scale-200" : ""
-                    }`}
-                  ></div>
-                </div>
-                <div className="p-6 relative z-10">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div
-                      className={`text-4xl transform transition-all duration-500 ${
-                        hoveredCard === index ? "scale-125 rotate-12" : ""
-                      }`}
-                    >
-                      {card.icon}
-                    </div>
-                    <div>
-                      <p className="text-blue-600 text-sm font-normal">{card.title}</p>
-                      <h3 className="text-2xl font-normal text-gray-800">{card.subtitle}</h3>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {card.links.map((link, linkIndex) => (
-                      <a
-                        key={linkIndex}
-                        href="#"
-                        className="group flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-all duration-300 p-2 rounded-lg hover:bg-blue-50 relative overflow-hidden"
-                        style={{ transitionDelay: `${linkIndex * 50}ms` }}
-                      >
-                        <span className="text-blue-400 group-hover:translate-x-1 transition-transform duration-300">
-                          ▶
-                        </span>
-                        <span className="text-sm font-normal group-hover:translate-x-1 transition-transform duration-300">
-                          {link}
-                        </span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500 opacity-10"></div>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-                <div
-                  className={`absolute inset-0 bg-gradient-to-r ${card.bgColor} opacity-0 transition-opacity duration-500 ${
-                    hoveredCard === index ? "opacity-10" : ""
-                  }`}
-                ></div>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Gradient wave animation */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-y-12 animate-pulse"></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {footerSections.map((section, index) => (
-            <div
-              key={section.title}
-              className={`transform transition-all duration-700 ease-out ${
-                isVisible ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
-              }`}
-              style={{ transitionDelay: `${(index + 2) * 150}ms` }}
-              onMouseEnter={() => setHoveredSection(index)}
-              onMouseLeave={() => setHoveredSection(null)}
-            >
-              <div className="relative group">
-                <h3 className="text-xl font-normal mb-6 text-white group-hover:text-blue-200 transition-colors duration-300 relative">
-                  {section.title}
-                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-300 to-white group-hover:w-full transition-all duration-700"></div>
-                  <div className="absolute -left-3 top-1/2 w-2 h-2 bg-blue-300 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-1/2 group-hover:scale-150"></div>
-                </h3>
-                {section.content ? (
-                  <div className="space-y-2">
-                    {section.content.map((line, idx) => (
-                      <p
-                        key={idx}
-                        className={`text-white hover:text-blue-100 transition-all duration-300 transform hover:translate-x-2 hover:scale-105 ${
-                          line.includes("Jam Pelayanan") ? "font-normal mt-4 text-white" : ""
-                        } ${line === "" ? "h-2" : ""}`}
-                        style={{ transitionDelay: `${idx * 50}ms` }}
-                      >
-                        {line}
-                      </p>
-                    ))}
-                  </div>
-                ) : (
-                  <ul className="space-y-3">
-                    {section.links &&
-                      section.links.map((link, idx) => (
-                        <li key={idx}>
-                          <a
-                            href="#"
-                            className="group/link text-white hover:text-blue-100 transition-all duration-500 flex items-center relative overflow-hidden p-2 rounded-lg -m-2"
-                            style={{ transitionDelay: `${idx * 75}ms` }}
-                          >
-                            <span className="relative z-10 transform group-hover/link:translate-x-3 transition-all duration-300 flex items-center gap-3">
-                              <span className="w-1.5 h-1.5 bg-white rounded-full group-hover/link:scale-150 group-hover/link:bg-blue-100 transition-all duration-300"></span>
-                              <span className="group-hover/link:font-normal transition-all duration-300">{link}</span>
-                            </span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-400 transform -translate-x-full group-hover/link:translate-x-0 transition-transform duration-500 opacity-20 rounded-lg"></div>
-                            <div className="absolute inset-0 bg-white transform scale-0 group-hover/link:scale-100 transition-transform duration-300 opacity-5 rounded-lg"></div>
-                            <div className="absolute inset-0 rounded-lg border-2 border-blue-300 opacity-0 group-hover/link:opacity-30 transform -skew-x-12 -translate-x-full group-hover/link:translate-x-full transition-all duration-700"></div>
-                          </a>
-                        </li>
-                      ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-16 pt-8 border-t border-blue-400 border-opacity-30 relative">
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-pulse opacity-50"></div>
-          </div>
-          <div className="flex justify-end">
-            <div className="flex space-x-4">
-              {socialIcons.map((social, idx) => (
-                <div
-                  key={social.name}
-                  className={`w-12 h-12 bg-transparent border-2 border-white rounded-lg flex items-center justify-center hover:bg-white hover:text-blue-600 transition-all duration-500 transform hover:scale-110 hover:rotate-12 cursor-pointer relative overflow-hidden group ${social.color}`}
-                  style={{
-                    animation: `float 3s ease-in-out infinite ${idx * 0.5}s`,
+      {/* Main container dengan batas lebar */}
+      <div className="max-w-7xl mx-auto relative z-10">
+        {/* Header Section dengan Logo dan Nama Instansi */}
+        <div className="px-6 py-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center p-1.5 border border-white/30 shadow-md">
+                <img
+                  src="/icons/madiun.png"
+                  alt="Logo Kecamatan Taman Kota Madiun"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    // Fallback jika gambar tidak ditemukan
+                    e.currentTarget.style.display = "none"
+                    const fallback = e.currentTarget.nextSibling as HTMLElement
+                    fallback.style.display = "block"
                   }}
-                >
-                  <span className="text-lg font-bold uppercase z-10 relative transition-all duration-300 group-hover:scale-125">
-                    {social.icon}
-                  </span>
-                  <div className="absolute inset-0 bg-white rounded-lg scale-0 group-hover:scale-150 transition-transform duration-700 opacity-0 group-hover:opacity-20"></div>
-                  <div className="absolute inset-0 rounded-lg border-2 border-blue-300 opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
+                />
+                <div className="text-2xl hidden" style={{ display: "none" }}>
+                  🏛️
                 </div>
-              ))}
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">Kecamatan Taman</h1>
+                <p className="text-white/90 text-xs">Kota Madiun</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Informasi Kontak Section */}
+        <div className="px-6 py-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              {/* Kolom 1: Alamat */}
+              <div className="text-center lg:text-left">
+                <h4 className="text-base font-semibold text-white underline mb-3">Alamat Kantor</h4>
+                <div className="space-y-2 text-sm">
+                  <p className="text-white">Jl. Raya Taman No. 15</p>
+                  <p className="text-white">Kel. Taman, Kecamatan Taman</p>
+                  <p className="text-white">Kota Madiun, Jawa Timur 63133</p>
+                </div>
+              </div>
+
+              {/* Kolom 2: Kontak */}
+              <div className="text-center lg:text-left">
+                <h4 className="text-base font-semibold text-white underline mb-3">Hubungi Kami</h4>
+                <div className="space-y-2 text-sm">
+                  <p className="text-white">Telepon: (0351) 123-456</p>
+                  <p className="text-white">Email: taman@madiunkota.go.id</p>
+                </div>
+              </div>
+
+              {/* Kolom 3: Jam Layanan */}
+              <div className="text-center lg:text-left">
+                <h4 className="text-base font-semibold text-white underline mb-3">Jam Pelayanan</h4>
+                <div className="space-y-2 text-sm">
+                  <p className="text-white">
+                    <span className="font-medium block">Senin - Kamis:</span>
+                    07.00 - 15.30 WIB
+                  </p>
+                  <p className="text-white">
+                    <span className="font-medium block">Jumat:</span>
+                    06.30 - 14.30 WIB
+                  </p>
+                </div>
+              </div>
+
+              {/* Kolom 4: Social Media */}
+              <div className="text-center lg:text-left">
+                <h3 className="text-base font-semibold text-white underline mb-3">Media Sosial</h3>
+                <p className="text-white text-sm mb-4">Ikuti kami untuk informasi terbaru</p>
+                <div className="flex justify-center lg:justify-start space-x-3">
+                  {socialIcons.map((social) => (
+                    <SocialIcon key={social.name} platform={social.name} url={social.url} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Copyright Section */}
+        <div className="px-6 py-4">
+          <div className="pt-4 border-t border-blue-400 border-opacity-30 relative">
+            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent"></div>
+
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div>
+                <p className="text-white/80 text-xs">
+                  © 2024 Kecamatan Taman, Kota Madiun. Seluruh hak cipta dilindungi.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <a href="#" className="text-white/70 hover:text-white text-xs">
+                  Kebijakan Privasi
+                </a>
+                <a href="#" className="text-white/70 hover:text-white text-xs">
+                  Syarat & Ketentuan
+                </a>
+                <a href="#" className="text-white/70 hover:text-white text-xs">
+                  Peta Situs
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -282,7 +243,7 @@ function Footer() {
       <style jsx>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-8px) rotate(5deg); }
+          50% { transform: translateY(-5px) rotate(3deg); }
         }
       `}</style>
     </div>
